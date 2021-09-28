@@ -1,0 +1,391 @@
+{% capture theme_settings %}
+  {{ settings.product_image_ratio }}
+  {{ settings.enable_product_quickshop }}
+  {{ settings.qs_show_payment_button }}
+{% endcapture %}
+
+<script
+  type="application/json"
+  data-section-id="{{ section.id }}"
+  data-section-type="static-collection-pages"
+>
+</script>
+
+{% include 'advanced-tag-loop' %}
+
+{% assign show_filters = true %}
+{% assign filter_style = section.settings.filter_style %}
+{% if filter_style == 'none' or collection.all_tags.size == 0 %}
+  {% assign show_filters = false %}
+{% endif %}
+
+{% assign group_count = cat_array | size %}
+{% assign column_count = group_count %}
+{% if column_count > 3 %}
+  {% assign column_count = 3 %}
+{% endif %}
+
+{% assign show_clear_all = false %}
+{% if current_tags.size > 1 %}
+  {% assign show_clear_all = true%}
+{% endif %}
+
+{% assign show_utils = false %}
+{% if show_filters or section.settings.sort_by %}
+  {% assign show_utils = true %}
+{% endif %}
+
+{% if collection.all_products_count == 0 %}
+  {% assign show_utils = false %}
+{% endif %}
+
+{% assign collection_url = collection.url %}
+{% if collection.handle %}
+  {% assign collection_url = '/collections/' | append: collection.handle %}
+{% elsif collection.current_type %}
+  {% assign collection_url = collection.current_type %}
+{% elsif collection.current_vendor %}
+  {% assign collection_url = collection.current_vendor %}
+{% endif %}
+
+{%- capture popover_icon -%}
+  <span class="popover-list-item-icon">
+    {% include 'icons', id: 'check' %}
+  </span>
+{%- endcapture -%}
+
+{% capture filters %}
+  {% if show_filters %}
+    <div
+      class="
+        collection-popover
+        {% if filter_style == 'groups' and column_count > 1 %}
+          popover-filters-advanced
+          popover-filters-columns-{{ column_count }}
+        {% else %}
+          popover-filters
+        {% endif %}
+        {% if show_clear_all %}
+          collection-popover-with-footer
+        {% endif %}
+      "
+      id="collection-popover-filters"
+      aria-hidden="true"
+      data-popover-content="filters"
+    >
+      <div class="collection-popover-inner">
+        <h2 class="collection-popover-title">
+          {{ 'product_grid.filters.title' | t }}
+
+          {% if show_clear_all %}
+            <a href="{{ collection_url }}" class="collection-popover-title-link">
+              {{ 'product_grid.filters.remove_all' | t }}
+            </a>
+          {% endif %}
+        </h2>
+
+        {%- if filter_style == 'groups' and column_count > 0 -%}
+          {%-
+            include 'product-grid-tag-groups',
+            item_icon: popover_icon
+          -%}
+        {% else %}
+          {%-
+            include 'product-grid-tags',
+            item_icon: popover_icon
+          -%}
+        {%- endif -%}
+      </div>
+
+      {% if show_clear_all %}
+        <div class="collection-popover-footer">
+          <a href="{{ collection_url }}" class="collection-popover-footer-link">
+            {{ 'product_grid.filters.remove_all' | t }}
+          </a>
+        </div>
+      {% endif %}
+    </div>
+  {% endif %}
+{% endcapture %}
+
+{% capture sort_by %}
+  {% if section.settings.sort_by %}
+    <div
+      class="collection-popover popover-sort-by"
+      id="collection-popover-sort-by"
+      aria-hidden="true"
+      data-popover-content="sort-by"
+    >
+      <div class="collection-popover-inner">
+        <h2 class="collection-popover-title">
+          {{ 'product_grid.sort_by.title' | t }}
+        </h2>
+
+        {%-
+          include 'product-grid-sortby',
+          item_icon: popover_icon
+        %}
+      </div>
+    </div>
+  {% endif %}
+{% endcapture %}
+
+{% paginate collection.products by 24 %}
+{% comment %} ...by section.settings.products_per_page {% endcomment %}
+  <section class="collection-header">
+    {% if section.settings.show_collection_image and collection.image %}
+      <div class="collection-header-media">
+        <figure class="collection-header-image">
+          {%
+            include 'rimg',
+            class: 'collection-header-image-img',
+            img: collection.image,
+            size: '1000x',
+            lazy: true
+          %}
+        </figure>
+
+        {%
+          include 'patterns',
+          size: 'large',
+          class: 'collection-header-pattern'
+        %}
+      </div>
+    {% endif %}
+
+    <div class="collection-header-content">
+      <div class="collection-header-breadcrumbs">
+        {%-
+          include 'breadcrumbs',
+          is_mobile: false
+        -%}
+      </div>
+
+      <h1 class="collection-header-title">
+        {{ collection.title }}
+      </h1>
+
+      {% if collection.description != blank %}
+        <div class="collection-header-description rte">
+        {{ collection.description }}
+        </div>
+      {% endif %}
+
+      {% if show_utils %}
+        <div data-collection-utils-narrow>
+
+          <div
+            class="
+              popover-utils
+              {% if section.settings.sort_by and show_filters %}
+                popover-utils-items
+              {% endif %}
+            "
+            data-collection-utils>
+            
+            {% if section.settings.sort_by %}
+            <div class="popover-utils-item">
+              <button
+                      class="popover-utils-item-button collection-sort-by-button"
+                      aria-label="{{ 'product_grid.sort_by.title' | t }}"
+                      aria-controls="collection-popover-sort-by"
+                      aria-expanded="false"
+                      aria-haspopup="true"
+                      data-popover-trigger="sort-by"
+                      >
+                <span class="popover-utils-item-button-label popover-utils-desktop">
+                  <span class="popover-utils-item-button-text">
+                    {% if collection.sort_by != blank %}
+                    {% assign sorting_label = 'product_grid.sort_by.' | append: collection.sort_by | replace: '-', '_' | t %}
+                    {{ 'product_grid.sort_by.title_active' | t: sorting: sorting_label }}
+                    {% else %}
+                    {{ 'product_grid.sort_by.title' | t }}
+                    {% endif %}
+                  </span>
+
+                  <span class="popover-utils-item-button-icon">
+                    {% include 'icons', id: 'chevron' %}
+                  </span>
+                </span>
+
+                <span class="popover-utils-item-button-label popover-utils-small popover-utils-mobile popover-utils-secondary">
+                  <span class="popover-utils-item-button-text">
+                    {{ 'product_grid.sort_by.title' | t }}
+                  </span>
+
+                  <span class="popover-utils-item-button-icon">
+                    {% include 'icons', id: 'close' %}
+                  </span>
+                </span>
+              </button>
+            </div>
+
+            {{ sort_by }}
+            {% endif %}
+            
+            
+            {% if show_filters %}
+              {%- assign filter_count = 0 -%}
+              {%- if current_tags.size > 0 -%}
+              {%- assign filter_count = current_tags.size -%}
+              {%- endif -%}
+
+              {% comment %}
+              <div class="popover-utils-item">
+                <button
+                        class="popover-utils-item-button collection-filters-button"
+                        aria-label="{{ 'product_grid.filters.trigger' | t }}"
+                        aria-controls="collection-popover-filters"
+                        aria-expanded="false"
+                        aria-haspopup="true"
+                        data-popover-trigger="filters"
+                        >
+                  <span class="popover-utils-item-button-label popover-utils-desktop">
+                    <span class="popover-utils-item-button-text">
+                      {% if filter_style == 'groups' and filter_count > 0 %}
+                      {{ 'product_grid.filters.title_count' | t: count: filter_count }}
+                      {% else %}
+                      {% comment %}
+                      If is not grouped filter, or has no filters, use default
+                      {% endcomment %}
+                      {{ 'product_grid.filters.trigger' | t }}
+                      {% endif %}
+                    </span>
+
+                    <span class="popover-utils-item-button-icon">
+                      {% include 'icons', id: 'chevron' %}
+                    </span>
+                  </span>
+
+                  <span class="popover-utils-item-button-label popover-utils-small popover-utils-mobile">
+                    <span class="popover-utils-item-button-text">
+                      {{ 'product_grid.filters.trigger' | t }}
+                    </span>
+
+                    <span class="popover-utils-item-button-icon">
+                      {% include 'icons', id: 'close' %}
+                    </span>
+                  </span>
+                </button>
+              </div>
+              {% endcomment %}
+
+              <div class="collection-popover-inner">
+              <h2 class="collection-popover-title">
+                {{ 'product_grid.filters.title' | t }}
+
+                {% if show_clear_all %}
+                <a href="{{ collection_url }}" class="collection-popover-title-link">
+                  {{ 'product_grid.filters.remove_all' | t }}
+                </a>
+                {% endif %}
+              </h2>
+
+              {%- if filter_style == 'groups' and column_count > 0 -%}
+              {%-
+                  include 'product-grid-tag-groups',
+              item_icon: popover_icon
+              -%}
+              {% else %}
+              {%-
+                  include 'product-grid-tags',
+              item_icon: popover_icon
+              -%}
+              {%- endif -%}
+            </div>
+            {% endif %}
+
+            
+          </div>
+        </div>
+      {% endif %}
+    </div>
+
+    {% if show_utils %}
+      <div class="collection-utils-wide" data-collection-utils-wide></div>
+    {% endif %}
+  </section>
+
+  <section class="collection-content">
+    <div class="productgrid-three">
+      {% for product in collection.products %}
+        {%
+          include 'product-item',
+          product: product
+        %}
+      {% else %}
+        {% assign title = 'product_grid.no_results.empty' | t %}
+        {% assign link = '/collections/all' %}
+        {% assign caption = 'product_grid.no_results.view_all_products' | t %}
+
+        {%- if current_tags.size > 1 -%}
+          {% assign title = 'product_grid.no_results.tags_empty' | t %}
+          {% assign link = collection_url %}
+          {% assign caption = 'product_grid.no_results.view_all' | t %}
+        {%- endif -%}
+
+        <article class="productgrid-no-results">
+          <h2 class="productgrid-no-results-title">
+            {{ title}}
+          </h2>
+
+          <a class="productgrid-no-results-button" href="{{ link }}">
+            {{ caption }}
+          </a>
+        </article>
+      {% endfor %}
+    </div>
+  </section>
+
+  {% include 'pagination' %}
+{% endpaginate %}
+
+{% schema %}
+{
+  "name": "Collection pages",
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "show_collection_image",
+      "label": "Show collection image",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "sort_by",
+      "label": "Show \"Sort by\"",
+      "default": false
+    },
+    {
+      "type": "select",
+      "id": "filter_style",
+      "label": "Filters",
+      "options": [
+        {
+          "value": "none",
+          "label": "Hide filters"
+        },
+        {
+          "value": "tags",
+          "label": "By tag"
+        },
+        {
+          "value": "groups",
+          "label": "By group"
+        }
+      ],
+      "default": "tags"
+    },
+    {
+      "type": "range",
+      "id": "products_per_page",
+      "label": "Products per page",
+      "min": 4,
+      "max": 12,
+      "step": 2,
+      "default": 12
+    }
+  ]
+}
+
+{% endschema %}

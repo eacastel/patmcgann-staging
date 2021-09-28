@@ -1,0 +1,79 @@
+{% assign icon_base = 'icon_(x)' %}
+{% assign heading_base = 'heading_(x)' %}
+{% assign caption_base = 'caption_(x)' %}
+
+{% assign max_items = 6 %}
+{% assign item_count = 0 %}
+
+{% comment %}
+  Loop over settings, look for heading and caption. If neither of those
+  have content, then the 'image with text' is assumed empty
+{% endcomment %}
+{% for i in (1..max_items) %}
+  {% assign heading_setting = heading_base | replace: '(x)', i %}
+  {% assign caption_setting = caption_base | replace: '(x)', i %}
+
+  {% if block.settings[heading_setting] != blank or block.settings[caption_setting] != blank %}
+    {% assign item_count = item_count | plus: 1 %}
+  {% endif %}
+{% endfor %}
+
+{% if item_count == 0 %}
+  {% assign onboard = true %}
+{% endif %}
+
+<div
+  class="
+    features-list
+    {{ background }}
+    {% if item_count <= 2 %}features-list-center{% endif %}
+  "
+>
+  {% if title != blank or subheading != blank %}
+    <div class="features-list-header">
+      {% if subheading != blank %}
+        <h3 class="features-list-subheading">{{ subheading | escape }}</h3>
+      {% endif %}
+
+      {% if title != blank %}
+        <h2 class="features-list-heading">{{ title | escape }}</h2>
+      {% endif %}
+    </div>
+  {% endif %}
+
+  <div class="features-list-items" data-features-list-items>
+    {% for i in (1..max_items) %}
+      {% unless onboard %}
+        {% assign icon_setting = icon_base | replace: '(x)', i %}
+        {% assign heading_setting = heading_base | replace: '(x)', i %}
+        {% assign caption_setting = caption_base | replace: '(x)', i %}
+
+        {% assign fa_icon = block.settings[icon_setting] %}
+        {% assign heading = block.settings[heading_setting] %}
+        {% assign caption = block.settings[caption_setting] %}
+
+        {% if heading != blank or caption != blank %}
+          {%
+            include 'features-item',
+            fa_icon: fa_icon,
+            heading: heading,
+            caption: caption
+          %}
+        {% endif %}
+      {% else %}
+        {% assign heading = 'onboarding.features_list.title' | t %}
+        {% assign caption = 'onboarding.features_list.caption_html' | t %}
+        {% capture fa_icon %}
+          {%- cycle 'shopping-bag', 'bell', 'superpowers', 'truck', 'user', 'envelope' -%}
+        {% endcapture %}
+        {%
+          include 'features-item',
+          fa_icon: fa_icon,
+          heading: heading,
+          caption: caption
+        %}
+      {% endunless %}
+
+    {% endfor %}
+  </div>
+</div>

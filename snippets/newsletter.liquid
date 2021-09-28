@@ -1,0 +1,78 @@
+{% comment %}
+  @param form_id {String}
+    Unique form id in case newsletter appears multiple times
+{% endcomment %}
+
+{% assign newsletter_tags = 'prospect' %}
+
+{%- if template contains 'password' %}
+  {% assign newsletter_tags = newsletter_tags | append: ', password page' %}
+{%- else -%}
+  {% assign newsletter_tags = newsletter_tags | append: ', newsletter' %}
+{%- endif -%}
+
+{% form 'customer', id: form_id %}
+  {% if form.posted_successfully? %}
+    <p class="newsletter-posted form-success" data-newsletter-submitted>
+    {{ 'general.newsletter.success' | t }}
+    </p>
+  {% elsif form.errors and form.context == form_id %}
+    <div class="newsletter-posted form-errors" data-newsletter-submitted>
+      {{ form.errors | default_errors }}
+    </div>
+  {% endif %}
+
+  {% unless form.posted_successfully? %}
+    <div class="newsletter">
+      {% assign email_label = 'general.newsletter.placeholder' | t %}
+      {% assign email_id = form_id | append: '_email' %}
+      {% assign submit_label = 'general.newsletter.subscribe' | t %}
+      {%- capture button_text -%}
+        <span class="newsletter-button-label">
+          {{ submit_label }}
+        </span>
+
+        <span class="newsletter-button-icon">
+          {%- include 'icons', id: 'chevron' -%}
+        </span>
+      {%- endcapture -%}
+
+      <input
+        type="hidden"
+        name="contact[tags]"
+        value="{{ newsletter_tags }}"
+      >
+
+      <input
+        type="hidden"
+        name="contact[context]"
+        value="{{ form_id }}"
+      >
+
+      {% assign email_error = false %}
+      {% if form.errors contains 'email' and form.context == form_id %}
+        {% assign email_error = true %}
+      {% endif %}
+
+      {%
+        include 'form-elements',
+        embellished: true
+        hide_label: true,
+        id: email_id
+        label: email_label,
+        name: 'contact[email]'
+        placeholder: email_label,
+        type: 'email',
+        required: true,
+        error: email_error,
+      %}
+
+      {%
+        include 'form-elements',
+        aria_label: submit_label,
+        type: 'submit'
+        value: button_text,
+      %}
+    </div>
+  {% endunless %}
+{% endform %}

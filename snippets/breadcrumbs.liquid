@@ -1,0 +1,109 @@
+{%- capture delimiter -%}
+  {%- if is_mobile -%}
+    /
+  {%- else -%}
+    <span class="breadcrumbs-delimiter" aria-hidden="true">
+      {%-
+        include 'icons',
+        id: 'chevron'
+      -%}
+    </span>
+  {%- endif -%}
+{%- endcapture -%}
+
+{%- assign has_breadcrumbs = false -%}
+{%- assign show_home = false -%}
+{%- assign link_home = false -%}
+{%- assign link_all_collections = false -%}
+
+{%- if template contains 'product' -%}
+  {%- assign has_breadcrumbs = true -%}
+  {%- unless collection.title -%}
+    {%- assign show_home = true -%}
+    {%- assign link_all_collections = true -%}
+  {%- endunless -%}
+
+{%- elsif template contains 'list-collections' -%}
+  {%- assign has_breadcrumbs = true -%}
+  {%- assign show_home = true -%}
+  {%- assign link_home = true -%}
+
+{%- elsif template contains 'collection' and collection.handle -%}
+  {%- assign has_breadcrumbs = true -%}
+  {%- assign link_all_collections = true -%}
+  {%- unless is_mobile -%}
+    {%- assign show_home = true -%}
+  {%- endunless -%}
+{%- endif -%}
+
+{%- comment -%}
+  All HTML is stripped out for mobile, so no need to link
+{%- endcomment -%}
+{%- if is_mobile -%}
+  {%- assign link_home = false -%}
+  {%- assign link_all_collections = false -%}
+{%- endif -%}
+
+{%- if has_breadcrumbs -%}
+  {%- capture all_collections -%}
+    {%- if link_all_collections -%}
+      <a href="/collections">
+        {{ 'general.breadcrumbs.collections' | t }}
+      </a>
+    {%- else -%}
+      <span>
+        {{ 'general.breadcrumbs.collections' | t }}
+      </span>
+    {%- endif -%}
+  {%- endcapture -%}
+
+  {%- capture breadcrumbs_content -%}
+    {%- if show_home -%}
+      {%- if link_home -%}
+        <a href="/">
+          {{ 'general.breadcrumbs.home' | t }}
+        </a>
+      {%- else -%}
+        <span>
+          {{ 'general.breadcrumbs.home' | t }}
+        </span>
+      {%- endif -%}
+
+      {{ delimiter }}
+    {%- endif -%}
+
+    {%- if template contains 'product' -%}
+      {{ all_collections }}
+
+      {%- if collection.title -%}
+        {{ delimiter }}
+        {{ collection.title | link_to: collection.url }}
+      {%- endif -%}
+
+    {%- elsif template contains 'list-collections' -%}
+      {{ all_collections }}
+
+    {%- elsif template contains 'collection' and collection.handle -%}
+      {{ all_collections }}
+
+      {%- if is_mobile -%}
+        {{ delimiter }}
+        <span>{{ collection.title }}</span>
+      {%- endif -%}
+
+    {%- endif -%}
+  {%- endcapture -%}
+
+  {%- if is_mobile -%}
+    <span class="breadcrumbs">
+      {{- breadcrumbs_content | strip_html | strip_newlines | replace: '  ', '' | replace: '/', ' / ' -}}
+    </span>
+  {%- else -%}
+    <nav
+      class="breadcrumbs"
+      aria-label="{{ 'general.accessibility.nav_breadcrumbs' | t }}"
+    >
+      {{- breadcrumbs_content | strip_linebreaks -}}
+    </nav>
+  {%- endif -%}
+{%- endif -%}

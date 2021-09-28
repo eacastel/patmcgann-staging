@@ -1,0 +1,48 @@
+<article class="site-page background-alternate">
+  <header class="page-masthead">
+    <h1 class="page-title">
+      {{ 'account.login_recover.title' | t }}
+    </h1>
+    <div class="account-actions">
+      <a class="account-return" href="/account">
+        {%
+          include 'icons',
+          id: 'chevron'
+        %}
+        <span>{{ 'account.general.login' | t }}</span>
+      </a>
+    </div>
+  </header>
+
+  <div class="page-container">
+    <div class="page-content rte">
+      <div class="account-login-recover">
+        {% form 'recover_customer_password' %}
+          {% assign account_login_email_label = 'account.login_recover.email' | t %}
+          {%
+            include 'form-elements',
+            id: 'login-reset',
+            name: 'email',
+            type: 'text'
+            value: form.email,
+            label: account_login_email_label
+          %}
+
+          {% assign account_login_submit_value = 'account.login_recover.submit' | t %}
+          {%
+            include 'form-elements',
+            secondary: true,
+            type: 'submit'
+            value: account_login_submit_value
+          %}
+        {% endform %}
+      </div>
+    </div>
+  </div>
+
+  {%
+    include 'patterns',
+    size: 'large',
+    class: 'page-content-pattern'
+  %}
+</article>

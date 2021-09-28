@@ -1,0 +1,149 @@
+<article class="site-page background-alternate site-account-order">
+  <header class="page-masthead">
+    <h1 class="page-title">
+      {{ 'account.order.title' | t }}
+    </h1>
+    <div class="account-actions">
+      <a class="account-return" href="/account">
+        {%
+          include 'icons',
+          id: 'chevron'
+        %}
+        <span>{{ 'account.general.account_details' | t }}</span>
+      </a>
+    </div>
+  </header>
+
+  <div class="page-container">
+    <div class="page-content rte">
+      <div class="account-order">
+        <h1 class="account-order-title">{{ 'account.order.order_title' | t: order_number: order.name }}</h1>
+
+        <div class="account-order-details">
+          <div class="account-order-shipping-info">
+            <div class="account-order-address account-billing-address">
+              <h2>{{ 'account.order.billing_address' | t }}</h2>
+
+              <div class="account-address-details">
+                {{ order.billing_address | format_address }}
+              </div>
+            </div>
+
+            {%- if order.shipping_address -%}
+              <div class="account-order-address account-shipping-address">
+                <h2>{{ 'account.order.shipping_address' | t }}</h2>
+
+                <div class="account-address-details">
+                  {{ order.shipping_address | format_address }}
+                </div>
+              </div>
+            {%- endif -%}
+          </div>
+
+        <div class="account-items">
+          <div class="account-items-header account-items-row">
+            <span
+              class="
+                account-item-column
+                account-item-col-product
+                account-items-header-product
+              "
+            >
+              {{ 'account.order.product' | t }}
+            </span>
+            <span
+              class="
+                account-item-column
+                account-item-col-price
+                account-items-header-price
+              "
+            >
+              {{ 'account.order.price' | t }}
+            </span>
+            <span
+              class="
+                account-item-column
+                account-item-col-quantity
+                account-items-header-quantity
+              "
+            >
+              {{ 'account.order.quantity' | t }}
+            </span>
+            <span
+              class="
+                account-item-column
+                account-item-col-total
+                account-items-header-total
+              "
+            >
+              {{ 'account.order.total' | t }}
+            </span>
+          </div>
+
+          {% for line_item in order.line_items %}
+            {% include 'account-item', item: line_item %}
+          {% endfor %}
+        </div>
+
+        {% if order.note != blank %}
+          <div class="account-order-note">
+            <span class="account-order-note-label">{{ 'account.order.note' | t }}</span>
+            <p class="account-order-note-contents">{{ order.note }}</p>
+          </div>
+        {% endif %}
+
+        {% if order.attributes.size > 0 %}
+          {% for attribute in order.attributes %}
+            <div class="account-order-attribute">
+              <span class="account-order-attribute-label">
+                {{ attribute | first }}:
+              </span>
+              <span class="account-order-attribute-content">
+                {{ attribute | last }}
+              </span>
+            </li>
+          {% endfor %}
+        {% endif %}
+
+        <div class="account-order-totals">
+          {% for discount in order.discounts %}
+            <div class="account-order-total-line account-order-discount">
+              <span class="account-order-totals-label">{{ 'account.order.discount' | t: code: discount.code }}</span>
+              <span class="account-order-totals-value money" data-money>{{ discount.savings | money }}</span>
+            </div>
+          {% endfor %}
+
+          <div class="account-order-total-line account-order-subtotal">
+            <span class="account-order-totals-label">{{ 'account.order.subtotal' | t }}</span>
+            <span class="account-order-totals-value money" data-money>{{ order.subtotal_price | money }}</span>
+          </div>
+
+          {% for shipping_method in order.shipping_methods %}
+            <div class="account-order-total-line account-order-shipping">
+              <span class="account-order-totals-label">{{ 'account.order.shipping' | t }} ({{ shipping_method.title }})</span>
+              <span class="account-order-totals-value money" data-money>{{ shipping_method.price | money }}</span>
+            </div>
+          {% endfor %}
+
+          {% for tax_line in order.tax_lines %}
+            <div class="account-order-total-line account-order-tax">
+              <span class="account-order-totals-label">{{ 'account.order.tax' | t }} ({{ tax_line.title }} {{ tax_line.rate | times: 100 }}%)</span>
+              <span class="account-order-totals-value money" data-money>{{ tax_line.price | money }}</span>
+            </div>
+          {% endfor %}
+
+          <div class="account-order-total-line account-order-total">
+            <span class="account-order-totals-label">{{ 'account.order.total' | t }}</span>
+            <span class="account-order-totals-value money" data-money>{{ order.total_price | money }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {%
+    include 'patterns',
+    size: 'large',
+    class: 'page-content-pattern'
+  %}
+</article>

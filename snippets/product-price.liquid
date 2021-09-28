@@ -1,0 +1,33 @@
+{% comment %}
+  @param component_scope {String}
+    Additional class to add to snippet depending on parent component
+
+  @param price {Number}
+    product.price
+
+  @param compare_at_price {Number}
+    product.compare_at_price
+
+  @param on_sale {Bool}
+    If a product, or one of it's variants is on sale
+{% endcomment %}
+
+<div class="product-price {% if component_scope %}{{ component_scope }}{% endif %}">
+  {% unless price_varies %}
+    <div class="price-compare-at {% if on_sale %}visible{% endif %}" data-price-compare-at>
+      <span class="money">
+        {{ compare_at_price | money }}
+      </span>
+    </div>
+  {% endunless %}
+
+  <div class="price-main" data-price>
+    {% if price_varies %}
+      {{ 'product.item.price_varies' | t }}
+    {% endif %}
+
+    <span class="money">
+      {{ price | money }}
+    </span>
+  </div>
+</div>

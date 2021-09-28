@@ -1,0 +1,35 @@
+{% assign sort_handles = "manual|price-ascending|price-descending|title-ascending|title-descending|created-ascending|created-descending|best-selling" | split: "|" %}
+
+<ul class="popover-list-sortby">
+  {%- for handle in sort_handles -%}
+    {% assign sort_active = false %}
+    {% if collection.sort_by == blank and collection.default_sort_by == handle %}
+      {% assign sort_active = true %}
+    {% elsif collection.sort_by == handle %}
+      {% assign sort_active = true %}
+    {% endif %}
+
+    {% assign item_class = 'popover-list-item' %}
+    {% if sort_active %}
+      {% assign item_class = item_class | append: ' popover-list-item-active' %}
+    {%- endif -%}
+
+    <li class="{{ item_class }}">
+      <button
+        class="{{ button_class }}"
+        value="{{ handle }}"
+        data-collection-sortby
+        {% if sort_active %}
+          disabled
+        {% endif %}
+        aria-label="{{- 'product_grid.sort_by.' | append: handle | replace: '-', '_' | t -}}"
+      >
+        {{- item_icon -}}
+
+        <span class="popover-list-item-text">
+          {{- 'product_grid.sort_by.' | append: handle | replace: '-', '_' | t -}}
+        </span>
+      </button>
+    </li>
+  {%- endfor -%}
+</ul>

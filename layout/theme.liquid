@@ -1,0 +1,115 @@
+<!doctype html>
+<!--[if IE]><html class="no-js ie9" lang="{{ shop.locale }}"><![endif]-->
+<!--[if !IE]><!--><html class="no-js" lang="{{ shop.locale }}"><!--<![endif]-->
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>
+      {{- page_title -}}
+
+      {%- if current_tags -%}
+        {%- include 'advanced-tag-loop' -%}
+        {% assign title_tags = '' %}
+        {% assign meta_tags = current_tags | join: ', ' %}
+        {%- for tag in current_tags -%}
+          {% assign is_advanced_tag = false %}
+          {% assign cat = tag | split: '_' | first %}
+
+          {%- unless cat == tag -%}
+            {%- if cat_array contains cat -%}
+              {% assign is_advanced_tag = true %}
+              {% assign title_tags = title_tags | append: ', ' | append: tag | replace_first: '_', ': ' %}
+            {%- endif -%}
+          {%- endunless -%}
+
+          {%- unless is_advanced_tag -%}
+            {% assign title_tags = title_tags | append: ', ' | append: tag %}
+          {%- endunless -%}
+        {%- endfor -%}
+        {{ 'general.title.tags' | t: tags: title_tags | remove_first: ', ' }}
+      {%- endif -%}
+
+      {%- if current_page != 1 -%}
+        {{- 'general.title.page' | t: page: current_page -}}
+      {%- endif -%}
+
+      {%- unless page_title contains shop.name -%}
+        {{- 'general.title.shop' | t: shop: shop.name -}}
+      {%- endunless -%}
+    </title>
+
+    {% if page_description != blank %}
+      <meta name="description" content="{{ page_description | escape }}">
+    {% endif %}
+
+    {% include 'favicon' %}
+    {% assign twitter_handle = settings.social_twitter | split: 'twitter.com/' | last %}
+    {%
+      include 'social-meta-tags',
+      twitter_handle
+    %}
+
+    <link rel="canonical" href="{{ canonical_url }}">
+    <link rel="dns-prefetch" href="//fonts.googleapis.com">
+
+    <script>(function(H){H.className=H.className.replace(/\bno-js\b/,'js')})(document.documentElement)</script>
+
+    {{ content_for_header }}
+
+    {{ 'theme.scss.css' | asset_url | stylesheet_tag }}
+    {{ 'custom.scss' | asset_url | stylesheet_tag }}
+    
+    {% if template contains 'collection' and canonical_url contains 'all-pillows' %}
+    <style>
+        [data-collection-utils-narrow], 
+        [data-collection-utils-wide] {
+          display: none;
+        }
+    </style>
+    {% endif %}
+  </head>
+
+  <body>
+    {% section 'pxs-announcement-bar' %}
+
+    {% section 'static-header' %}
+
+    <div class="banners" data-banners></div>
+
+    <main class="site-main">
+      {{ content_for_layout }}
+    </main>
+
+    {% section 'static-footer' %}
+
+    {% capture dismiss_icon %}
+      {% include 'icons', id: 'close' %}
+    {% endcapture %}
+
+    {% comment %}
+      Modal container
+    {% endcomment %}
+    {% include 'modal' %}
+
+    <script
+      src="{{ 'reach.js' | asset_url }}"
+      data-theme-data
+      data-scripts
+      data-shopify-api-url="{{ 'api.jquery.js' | shopify_asset_url }}"
+      data-shopify-common="{{ 'shopify_common.js' | shopify_asset_url }}"
+      data-shopify-countries="/services/javascripts/countries.js"
+      data-shopify-currencies="//cdn.shopify.com/s/javascripts/currencies.js"
+      data-shopify-customer="{{ 'customer_area.js'  | shopify_asset_url }}"
+      data-shopify-jquery-cart="{{ 'jquery.cart.js' | asset_url }}"
+      data-shopify-qrcode="{{ 'vendor/qrcode.js' | shopify_asset_url }}"
+    >
+      {
+        "dismiss_icon": {{ dismiss_icon | json }}
+      }
+    </script>
+
+    {% include 'structured-data' %}
+  </body>
+</html>

@@ -1,0 +1,25 @@
+{% layout none %}
+
+<div class="product-quickshop">
+  {%
+    include 'product',
+    is_quickshop: true
+  %}
+</div>
+
+<script
+  type="application/json"
+  data-quickshop-data
+>
+  {
+    "money_format": {{ shop.money_format | strip_html | json }},
+    "product": {{ product | json }},
+    "variant_available": {{ product.selected_or_first_available_variant.available | json }},
+    "cart_redirect": {{ settings.qs_enable_cart_redirect | json }},
+    "text_strings": {
+      "add_to_cart": {{ 'general.form.add_to_cart' | t | json }},
+      "quantity_text": {{ 'product.general.add_to_cart' | t: amount: '** amount **' | json }},
+      "quantity_disable": {{ 'product.general.out_of_stock' | t | json }}
+    }
+  }
+</script>

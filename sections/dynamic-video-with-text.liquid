@@ -1,0 +1,135 @@
+<script
+  type="application/json"
+  data-section-id="{{ section.id }}"
+  data-section-type="dynamic-video-with-text"
+>
+</script>
+
+{%
+  include 'video-block',
+  text_layout: section.settings.text_layout,
+  title: section.settings.title,
+  subheading: section.settings.subheading,
+  text: section.settings.text,
+  video_url: section.settings.video_url,
+  block_id: section.id,
+  image: section.settings.image,
+  button_style: section.settings.button_style,
+  aspect_ratio: section.settings.aspect_ratio,
+  overlay_color: section.settings.overlay_color,
+  overlay_opacity: section.settings.overlay_opacity,
+%}
+
+{% schema %}
+{
+  "name": "Video with text",
+  "class": "section-video-with-text",
+  "settings": [
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Heading",
+      "default": "Video with text"
+    },
+    {
+      "type": "text",
+      "id": "subheading",
+      "label": "Subheading"
+    },
+    {
+      "type": "richtext",
+      "id": "text",
+      "label": "Text",
+      "default": "<p>Enhance your homepage with a video that relates to your process, products, or story.</p>"
+    },
+    {
+      "type": "select",
+      "id": "text_layout",
+      "label": "Text layout",
+      "options": [
+        {
+          "value": "top",
+          "label": "Top"
+        },
+        {
+          "value": "bottom",
+          "label": "Bottom"
+        }
+      ],
+      "default": "top"
+    },
+    {
+      "type": "video_url",
+      "id": "video_url",
+      "label": "Youtube or Vimeo link",
+      "accept": ["youtube", "vimeo"],
+      "default": "https://www.youtube.com/watch?v=_9VUPq3SxOc"
+    },
+    {
+      "id": "aspect_ratio",
+      "type": "select",
+      "label": "Video aspect ratio",
+      "default": "aspect-ratio-16-by-9",
+      "options": [
+        {
+          "value": "aspect-ratio-16-by-9",
+          "label": "16:9"
+        },
+        {
+          "value": "aspect-ratio-21-by-9",
+          "label": "21:9"
+        }
+      ]
+    },
+    {
+      "id": "image",
+      "type": "image_picker",
+      "label": "Cover image",
+      "info": "Optional. A play button will be displayed if an image has been selected"
+    },
+    {
+      "type": "select",
+      "id": "button_style",
+      "label": "Play button style",
+      "options": [
+        {
+          "value": "primary",
+          "label": "Primary"
+        },
+        {
+          "value": "secondary",
+          "label": "Secondary"
+        }
+      ],
+      "default": "secondary"
+    },
+    {
+      "type": "header",
+      "content": "Overlay"
+    },
+    {
+      "type": "color",
+      "id": "overlay_color",
+      "label": "Overlay color",
+      "default": "#ffffff"
+    },
+    {
+      "id": "overlay_opacity",
+      "type": "range",
+      "label": "Opacity",
+      "default": 50,
+      "min": 0,
+      "max": 90,
+      "step": 1,
+      "unit": "%"
+    }
+  ],
+  "presets": [
+    {
+      "category": "Video",
+      "name": "Video with text"
+    }
+  ]
+}
+
+{% endschema %}

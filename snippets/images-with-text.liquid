@@ -1,0 +1,61 @@
+{% assign image_base = 'image_(x)' %}
+{% assign heading_base = 'heading_(x)' %}
+{% assign caption_base = 'caption_(x)' %}
+
+{% assign valid_blocks = '' %}
+{% assign max_items = 4 %}
+
+{% comment %}
+  Loop over settings, look for heading and caption. If neither of those
+  have content, then the 'image with text' is assumed empty
+{% endcomment %}
+{% for i in (1..max_items) %}
+  {% assign image_setting = image_base | replace: '(x)', i %}
+  {% assign heading_setting = heading_base | replace: '(x)', i %}
+  {% assign caption_setting = caption_base | replace: '(x)', i %}
+
+  {% if block.settings[image_setting] != blank or block.settings[heading_setting] != blank or block.settings[caption_setting] != blank %}
+    {% assign valid_blocks = valid_blocks | append: '|' | append: i %}
+  {% endif %}
+{% endfor %}
+{% assign valid_blocks = valid_blocks | remove_first: '|' | split: '|' %}
+{% assign item_count = valid_blocks.size %}
+
+{% comment %}
+  If there are no images with text that qualify as valid, set as onboarding state
+{% endcomment %}
+{% if item_count == 0 %}
+  {% assign onboard = true %}
+{% endif %}
+
+<div class="images-with-text">
+  {% unless onboard %}
+    {% for item in (1..item_count) %}
+      {% assign i = valid_blocks[forloop.index0] %}
+      {% assign image_setting = image_base | replace: '(x)', i %}
+      {% assign heading_setting = heading_base | replace: '(x)', i %}
+      {% assign caption_setting = caption_base | replace: '(x)', i %}
+
+      {% assign image = block.settings[image_setting] %}
+      {% assign heading = block.settings[heading_setting] %}
+      {% assign caption = block.settings[caption_setting] %}
+
+        {%
+          include 'image-with-text',
+          image: image,
+          heading: heading,
+          caption: caption
+        %}
+    {% endfor %}
+  {% else %}
+    {% for i in (1..max_items) %}
+      {% assign heading = 'onboarding.image_with_text.title' | t %}
+      {% assign caption = 'onboarding.image_with_text.caption_html' | t %}
+      {%
+        include 'image-with-text',
+        heading: heading,
+        caption: caption
+      %}
+    {% endfor %}
+  {% endunless %}
+</div>

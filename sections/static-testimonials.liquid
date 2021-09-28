@@ -1,0 +1,106 @@
+{% capture theme_settings %}
+  {{ settings.product_image_ratio }}
+{% endcapture %}
+
+<script
+  type="application/json"
+  data-section-id="{{ section.id }}"
+  data-section-type="static-testimonials"
+>
+</script>
+
+{%
+  if section.settings.title != blank
+  or section.settings.subheading != blank
+  or section.blocks.size != 0
+%}
+  {% include 'testimonials' %}
+{% endif %}
+
+{% schema %}
+{
+  "name": "Testimonials",
+  "class": "section-static-testimonials",
+  "settings": [
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Heading",
+      "default": "Testimonials"
+    },
+    {
+      "type": "text",
+      "id": "subheading",
+      "label": "Subheading"
+    },
+    {
+      "type": "select",
+      "id": "background",
+      "label": "Background",
+      "options": [
+        {
+          "value": "background-default",
+          "label": "Default"
+        },
+        {
+          "value": "background-alternate",
+          "label": "Alternate"
+        }
+      ],
+      "default": "background-default"
+    }
+  ],
+  "max_blocks": 3,
+  "blocks": [
+    {
+      "type": "testimonial",
+      "name": "Testimonial",
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Name",
+          "default": "Name"
+        },
+        {
+          "type": "url",
+          "id": "heading_url",
+          "label": "Heading link"
+        },
+        {
+          "type": "textarea",
+          "id": "caption",
+          "label": "Caption",
+          "default": "Showcase up to three testimonials to build trust with potential customers."
+        },
+        {
+          "type": "select",
+          "id": "style",
+          "label": "Style",
+          "options": [
+            {
+              "value": "standard",
+              "label": "Standard"
+            },
+            {
+              "value": "facebook",
+              "label": "Facebook"
+            },
+            {
+              "value": "twitter",
+              "label": "Twitter"
+            }
+          ],
+          "default": "standard"
+        },
+        {
+          "type": "product",
+          "id": "product_handle",
+          "label": "Product"
+        }
+      ]
+    }
+  ]
+}
+
+{% endschema %}

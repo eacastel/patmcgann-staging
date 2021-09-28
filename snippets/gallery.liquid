@@ -1,0 +1,349 @@
+{% comment %}
+  Gallery layout is used for both Instagram feed, and Story telling Gallery
+  - There are 6 different layouts depending on gallery count
+{% endcomment %}
+
+{% assign svg_class = 'placeholder-svg' %}
+{% if onboarding %}
+  {% assign svg_class = svg_class | append: ' placeholder-svg-loading' %}
+{% endif %}
+
+<section class="gallery {{ background_style }}">
+  {% if title != blank or subheading != blank %}
+    <div class="gallery-header">
+      {% if subheading != blank %}
+        <h3 class="gallery-subheading">
+          {{ subheading | escape }}
+        </h3>
+      {% endif %}
+
+      {% if title != blank %}
+        <h2 class="gallery-heading">
+          {{ title | escape }}
+        </h2>
+      {% endif %}
+    </div>
+  {% endif %}
+
+  <div class="gallery-grid {% comment %}gallery-grid-{{ image_count }}{% endcomment %} gallery-grid-7" data-gallery>
+    {% case image_count %}
+      {% when 1 %}
+        <div class="gallery-grid-column">
+          <div class="gallery-image">
+            {%
+              include 'rimg',
+              img: image_1,
+              size: '540x',
+              lazy: true
+            %}
+          </div>
+        </div>
+      {% when 2 %}
+        <div class="gallery-grid-column" data-gallery-slide>
+          <div class="gallery-image">
+            {%
+              include 'rimg',
+              img: image_1,
+              size: '592x',
+              lazy: true
+            %}
+          </div>
+        </div>
+        <div class="gallery-grid-column" data-gallery-slide>
+          <div class="gallery-image">
+            {%
+              include 'rimg',
+              img: image_2,
+              size: '592x',
+              lazy: true
+            %}
+          </div>
+        </div>
+      {% when 3 %}
+        <div class="gallery-grid-column" data-gallery-slide>
+          <div class="gallery-image">
+            {%
+              include 'rimg',
+              img: image_1,
+              size: '384x',
+              lazy: true
+            %}
+          </div>
+        </div>
+        <div class="gallery-grid-column" data-gallery-slide>
+          <div class="gallery-image">
+            {%
+              include 'rimg',
+              img: image_2,
+              size: '384x',
+              lazy: true
+            %}
+          </div>
+        </div>
+        <div class="gallery-grid-column" data-gallery-slide>
+          <div class="gallery-image">
+            {%
+              include 'rimg',
+              img: image_3,
+              size: '384x',
+              lazy: true
+            %}
+          </div>
+        </div>
+      {% when 4 %}
+        <div class="gallery-grid-column" data-gallery-slide>
+          <div class="gallery-image">
+            {%
+              include 'rimg',
+              img: image_1,
+              size: '280x',
+              lazy: true
+            %}
+          </div>
+        </div>
+        <div class="gallery-grid-column" data-gallery-slide>
+          <div class="gallery-image">
+            {%
+              include 'rimg',
+              img: image_2,
+              size: '280x',
+              lazy: true
+            %}
+          </div>
+        </div>
+        <div class="gallery-grid-column" data-gallery-slide>
+          <div class="gallery-image">
+            {%
+              include 'rimg',
+              img: image_3,
+              size: '280x',
+              lazy: true
+            %}
+          </div>
+        </div>
+        <div class="gallery-grid-column" data-gallery-slide>
+          <div class="gallery-image">
+            {%
+              include 'rimg',
+              img: image_4,
+              size: '280x',
+              lazy: true
+            %}
+          </div>
+        </div>
+      {% when 5 %}
+        <div class="gallery-grid-column grid-column-wide" data-gallery-slide>
+          <div class="gallery-image gallery-image-large">
+            {%
+              include 'rimg',
+              img: image_1,
+              size: '600x',
+              lazy: true
+            %}
+          </div>
+        </div>
+
+        <div class="gallery-grid-column grid-column-narrow" data-gallery-slide>
+          <div class="gallery-image gallery-image-small">
+            {%
+              include 'rimg',
+              img: image_2,
+              size: '292x',
+              lazy: true
+            %}
+          </div>
+          <div class="gallery-image gallery-image-small">
+            {%
+              include 'rimg',
+              img: image_3,
+              size: '292x',
+              lazy: true
+            %}
+          </div>
+        </div>
+
+        <div class="gallery-grid-column grid-column-narrow" data-gallery-slide>
+          <div class="gallery-image gallery-image-small">
+            {%
+              include 'rimg',
+              img: image_4,
+              size: '292x',
+              lazy: true
+            %}
+          </div>
+          <div class="gallery-image gallery-image-small">
+            {%
+              include 'rimg',
+              img: image_5,
+              size: '292x',
+              lazy: true
+            %}
+          </div>
+        </div>
+      {% when 6 %}
+        <div class="gallery-grid-column grid-column-wide" data-gallery-slide>
+          <div class="gallery-image gallery-image-large">
+            {% if image_1 %}
+              {%
+                include 'rimg',
+                img: image_1,
+                size: '395x',
+                lazy: true
+              %}
+            {% else %}
+              {{- 'image' | placeholder_svg_tag: svg_class -}}
+            {% endif %}
+          </div>
+        </div>
+    
+        <div class="gallery-grid-column grid-column-wide" data-gallery-slide>
+          <div class="gallery-image gallery-image-large">
+            {% if image_2 %}
+            {%
+                        include 'rimg',
+            img: image_2,
+            size: '189x',
+            lazy: true
+            %}
+            {% else %}
+            {{- 'image' | placeholder_svg_tag: svg_class -}}
+            {% endif %}
+          </div>
+        </div>
+    
+        <div class="gallery-grid-column grid-column-wide" data-gallery-slide>
+          <div class="gallery-image gallery-image-large">
+            {% if image_3 %}
+            {%
+                        include 'rimg',
+            img: image_3,
+            size: '189x',
+            lazy: true
+            %}
+            {% else %}
+            {{- 'image' | placeholder_svg_tag: svg_class -}}
+            {% endif %}
+          </div>
+        </div>
+    
+        <div class="gallery-grid-column grid-column-wide" data-gallery-slide>
+          <div class="gallery-image gallery-image-large">
+            {% if image_4 %}
+            {%
+                    include 'rimg',
+            img: image_4,
+            size: '395x',
+            lazy: true
+            %}
+            {% else %}
+            {{- 'image' | placeholder_svg_tag: svg_class -}}
+            {% endif %}
+          </div>
+        </div>
+    
+        <div class="gallery-grid-column grid-column-wide" data-gallery-slide>
+          <div class="gallery-image gallery-image-large">
+            {% if image_5 %}
+            {%
+                    include 'rimg',
+            img: image_5,
+            size: '189x',
+            lazy: true
+            %}
+            {% else %}
+            {{- 'image' | placeholder_svg_tag: svg_class -}}
+            {% endif %}
+          </div>
+        </div>
+    
+        <div class="gallery-grid-column grid-column-wide" data-gallery-slide>
+          <div class="gallery-image gallery-image-large">
+            {% if image_6 %}
+            {%
+                    include 'rimg',
+            img: image_6,
+            size: '189x',
+            lazy: true
+            %}
+            {% else %}
+            {{- 'image' | placeholder_svg_tag: svg_class -}}
+            {% endif %}
+          </div>
+        </div>
+		
+    
+    
+    
+        {% comment %}
+        <div class="gallery-grid-column grid-column-narrow" data-gallery-slide>
+          <div class="gallery-image gallery-image-small">
+            {% if image_2 %}
+            {%
+                        include 'rimg',
+            img: image_2,
+            size: '189x',
+            lazy: true
+            %}
+            {% else %}
+            {{- 'image' | placeholder_svg_tag: svg_class -}}
+            {% endif %}
+          </div>
+          <div class="gallery-image gallery-image-small">
+            {% if image_3 %}
+            {%
+                        include 'rimg',
+            img: image_3,
+            size: '189x',
+            lazy: true
+            %}
+            {% else %}
+            {{- 'image' | placeholder_svg_tag: svg_class -}}
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="gallery-grid-column grid-column-narrow" data-gallery-slide>
+          <div class="gallery-image gallery-image-small">
+            {% if image_5 %}
+            {%
+                    include 'rimg',
+            img: image_5,
+            size: '189x',
+            lazy: true
+            %}
+            {% else %}
+            {{- 'image' | placeholder_svg_tag: svg_class -}}
+            {% endif %}
+          </div>
+          <div class="gallery-image gallery-image-small">
+            {% if image_6 %}
+            {%
+                    include 'rimg',
+            img: image_6,
+            size: '189x',
+            lazy: true
+            %}
+            {% else %}
+            {{- 'image' | placeholder_svg_tag: svg_class -}}
+            {% endif %}
+          </div>
+        </div>
+        {% endcomment %}
+    {% endcase %}
+  </div>
+</section>
+
+<style>
+  .gallery-grid.gallery-grid-7 .gallery-grid-column.grid-column-wide {
+/*     width: 30.3333%; */
+    width: 25%;
+    margin-bottom: 4px;
+    margin: 10px;
+  }
+  
+  @media (min-width: 1025px) {
+    .gallery-grid.gallery-grid-7 {
+      display: flex;
+    }
+  }
+</style>

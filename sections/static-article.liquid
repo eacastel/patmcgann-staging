@@ -1,0 +1,318 @@
+{% assign show_publication_delimiter = false %}
+{%- capture publication_delimiter -%}
+  <span class="article-publication-info-seperator"> / </span>
+{%- endcapture -%}
+
+<div class="site-page">
+  <article class="article">
+    <header class="page-masthead article-masthead">
+      {% if section.settings.show_date %}
+        <span class="article-date">
+          {{ article.published_at | date: format: 'short_day_month_year' }}
+        </span>
+      {% endif %}
+
+      <h1 class="article-title">
+        {{ article.title }}
+      </h1>
+
+      <div class="article-publication-info">
+        {%- if section.settings.show_author -%}
+          <span class="article-author">
+            {{ 'article.general.author' | t: author: article.author }}
+          </span>
+          {% assign show_publication_delimiter = true %}
+        {%- endif -%}
+
+        {%- if article.tags.size > 0 and section.settings.show_tags -%}
+          {%- if show_publication_delimiter -%}
+            {{ publication_delimiter }}
+          {%- endif -%}
+
+          {%- for tag in article.tags -%}
+            <span class="article-tag">
+              {% unless forloop.last %}
+                {{ tag | append: ',' | link_to_tag: tag }}
+              {% else %}
+                {{ tag | link_to_tag: tag }}
+              {% endunless %}
+            </span>
+          {%- endfor -%}
+          {% assign show_publication_delimiter = true %}
+        {%- endif -%}
+
+        {%- if article.comments_enabled? -%}
+          {%- if show_publication_delimiter -%}
+            {{ publication_delimiter }}
+          {%- endif -%}
+          <a class="article-comment-count" href="#comments">
+            {{ 'article.general.comments_count' | t: count: article.comments_count }}
+          </a>
+        {%- endif -%}
+      </div>
+    </header>
+
+    {%- if article.image -%}
+      <figure class="article-figure">
+        <div class="article-image-wrapper">
+          {%
+            include 'rimg',
+            class: 'article-image',
+            img: article.image,
+            size: '800x',
+            lazy: true
+          %}
+          {%
+            include 'patterns',
+            size: 'large',
+            class: 'article-image-pattern'
+          %}
+        </div>
+      </figure>
+    {%- endif -%}
+
+    <div class="page-container article-content rte">
+      {{ article.content }}
+    </div>
+
+    {%- if section.settings.show_share_buttons -%}
+      {% assign social_image = false %}
+      {% if article.image %}
+        {% assign social_image = article.image | img_url: '1024x' %}
+      {% endif %}
+      {% assign social_url = shop.url | append: article.url %}
+      {% assign social_title = article.title %}
+
+      {%-
+        include 'share-buttons',
+        share_class: 'article-share-buttons',
+        show_title: true,
+        social_image: social_image,
+        social_title: social_title,
+        social_url: social_url
+      -%}
+    {%- endif -%}
+
+    {% if article.comments_enabled? %}
+      <aside class="page-container article-comments" id="comments">
+        {% if article.comments_count > 0 %}
+          <div class="comments">
+            <h2 class="comments-title">
+              {{ 'article.comments.title' | t }}
+            </h2>
+
+            {% paginate article.comments by 10 %}
+              {% for comment in article.comments %}
+                <div class="comment" id="{{ comment.id }}">
+                  <div class="comment-publication-info">
+                    <span class="comment-author">
+                      {{ comment.author }}
+                    </span>
+                    <span class="comment-date">
+                      {{ comment.created_at | date: format: 'short_day_month_year' }}
+                    </span>
+                  </div>
+                  <div class="comment-rte">
+                    {{ comment.content }}
+                  </div>
+                </div>
+              {% endfor %}
+
+              {% if paginate.previous or paginate.next %}
+                {% include 'pagination' %}
+              {% endif %}
+            {% endpaginate %}
+          </div>
+        {% endif %}
+
+        {% form 'new_comment', article %}
+          {% if form.posted_successfully? %}
+            {% assign has_message = true %}
+            {% assign message_type = 'success' %}
+          {% endif %}
+
+          {% if form.errors != blank %}
+            {% assign has_message = true %}
+            {% assign message_type = 'errors' %}
+          {% endif %}
+
+          <div class="comment-form-content">
+            <h2 class="comment-form-title">
+              {{ 'article.comment_form.title' | t }}
+            </h2>
+
+            {% if has_message %}
+              <div class="article-comments-message form-{{ message_type }}">
+                {% case message_type %}
+                  {% when 'success' %}
+                    <p>
+                      {% if blog.moderated? %}
+                        {{ 'article.comment_form.pending' | t }}
+                      {% else %}
+                        {{ 'article.comment_form.success' | t }}
+                      {% endif %}
+                    </p>
+                  {% when 'errors' %}
+                    {{ form.errors | default_errors }}
+                {% endcase %}
+              </div>
+            {% endif %}
+
+            {% assign comment_name_label = 'article.comment_form.name' | t %}
+            {% assign comment_name_error = false %}
+            {% if form.errors contains 'author' %}
+              {% assign comment_name_error = true %}
+            {% endif %}
+
+            {%
+              include 'form-elements',
+              id: 'comment-name',
+              name: 'comment[author]',
+              type: 'text',
+              error: comment_name_error,
+              label: comment_name_label,
+              value: form.author
+            %}
+
+            {% assign comment_email_label = 'article.comment_form.email' | t %}
+            {% assign comment_email_error = false %}
+            {% if form.errors contains 'email' %}
+              {% assign comment_email_error = true %}
+            {% endif %}
+
+            {%
+              include 'form-elements',
+              id: 'comment-email',
+              name: 'comment[email]',
+              type: 'text',
+              error: comment_email_error,
+              label: comment_email_label,
+              value: form.email
+            %}
+
+            {% assign comment_body_label = 'article.comment_form.comment' | t %}
+            {% assign comment_body_error = false %}
+            {% if form.errors contains 'body' %}
+              {% assign comment_body_error = true %}
+            {% endif %}
+
+            {%
+              include 'form-elements',
+              id: 'comment-body',
+              name: 'comment[body]',
+              type: 'textarea',
+              error: comment_body_error,
+              label: comment_body_label,
+              value: form.body
+            %}
+
+            {% assign comment_submit_value = 'article.comment_form.submit' | t %}
+            {%
+              include 'form-elements',
+              secondary: true,
+              type: 'submit',
+              value: comment_submit_value
+            %}
+          </div>
+        {% endform %}
+      </aside>
+    {% endif %}
+  </article>
+</div>
+
+{% assign prev_article = false %}
+{% assign next_article = false %}
+
+{% if blog.next_article or blog.previous_article %}
+  {% assign current_found = false %}
+  {% assign done = false %}
+  {% for a in blog.articles %}
+    {% if current_found and done == false %}
+      {% assign next_article = a %}
+      {% assign done = true %}
+    {% endif %}
+
+    {% unless done %}
+      {% if a.id == article.id %}
+        {% assign current_found = true %}
+      {% else %}
+        {% assign prev_article = a %}
+      {% endif %}
+    {% endunless %}
+  {% endfor %}
+{% endif %}
+
+{% if next_article %}
+  <article class="article-next background-alternate">
+    <div class="page-container article-next-contents">
+      <span class="article-next-subtitle">
+        {{ 'article.general.next' | t }}
+      </span>
+
+      <h2 class="article-next-title">
+        <a href="{{ next_article.url }}">
+          {{ next_article.title }}
+        </a>
+      </h2>
+
+      <div
+        class="
+          article-next-footer
+          {% unless next_article.image %}
+            article-next-footer-no-image
+          {% endunless %}
+        "
+      >
+        <a class="article-next-button" href="{{ next_article.url }}">
+          {{ 'article.general.view' | t }}
+        </a>
+
+        {% if next_article.image %}
+          <figure class="article-next-figure">
+            {%
+              include 'rimg',
+              class: 'article-next-image',
+              img: next_article.image,
+              size: '650x',
+              lazy: true
+            %}
+          </figure>
+        {% endif %}
+      </div>
+    </div>
+  </article>
+{% endif %}
+
+{% schema %}
+{
+  "name": "Posts",
+  "class": "section-static-article",
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "show_date",
+      "label": "Show date published",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_author",
+      "label": "Show post author",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_tags",
+      "label": "Show post tags",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_share_buttons",
+      "label": "Show social sharing buttons",
+      "default": true
+    }
+  ]
+}
+
+{% endschema %}

@@ -1,0 +1,140 @@
+{% if onboard %}
+  {% assign compare_at_price = 1999 %}
+  {% assign price = 1999 %}
+  {% assign price_varies = false %}
+  {% assign product_title = 'onboarding.product.title' | t %}
+  {% assign product_link = '#' %}
+  {% assign name = 'onboarding.testimonial.title' | t %}
+  {%- capture style -%}
+    {%- cycle 'standard', 'facebook', 'twitter' -%}
+  {%- endcapture -%}
+{% elsif product != blank %}
+  {% assign compare_at_price = product.compare_at_price %}
+  {% assign price = product.price_min %}
+  {% assign price_varies = product.price_varies %}
+  {% assign product_title = product.title %}
+  {% assign product_link = product.url | within: collection %}
+{% endif %}
+
+{% assign on_sale = false %}
+{% for variant in product.variants %}
+  {% if variant.compare_at_price > variant.price %}
+    {% assign on_sale = true %}
+  {% endif %}
+{% endfor %}
+
+{% assign icon_style = style %}
+{% if style == 'standard' %}
+  {% assign icon_style = 'quote' %}
+{% endif %}
+
+{%- capture name_markup -%}
+  {%- if link != blank -%}
+    <a
+      href="{{ link }}"
+      target="_blank"
+    >
+      {{ name | escape }}
+    </a>
+  {%- else -%}
+    {{ name | escape }}
+  {%- endif -%}
+{%- endcapture -%}
+
+<article
+  class="testimonial"
+  {% if block_attributes %}{{ block_attributes }}{% endif %}
+>
+  {%
+    include 'patterns',
+    size: 'small',
+    class: 'testimonial-pattern'
+  %}
+  <div class="testimonial-content">
+    <div class="testimonial-wrapper">
+      <div class="testimonial-header">
+        <div class="testimonial-style">
+          <div class="testimonial-style-icon testimonial-style-icon-{{ icon_style }}">
+            {%
+              include 'icons',
+              id: icon_style
+            %}
+          </div>
+
+          {% if name != blank %}
+            <span class="testimonial-name testimonial-name-mobile">
+              {{ name_markup }}
+            </span>
+          {% endif %}
+        </div>
+
+        {% if onboard or caption != blank %}
+          <p class="testimonial-caption">
+            {% if onboard %}
+              {{ 'onboarding.testimonial.caption' | t }}
+            {% else %}
+              {{ caption | escape }}
+            {% endif %}
+          </p>
+        {% endif %}
+
+        {% if name != blank %}
+          <h3 class="testimonial-name">
+            {{ name_markup }}
+          </h3>
+        {% endif %}
+      </div>
+
+      {% if product != blank %}
+        <a
+          class="testimonial-footer-link"
+          href="{{ product_link }}"
+        >
+          <div class="testimonial-footer">
+            {% if product.featured_image or onboard %}
+              <figure class="testimonial-product-image">
+                <div
+                  class="testimonial-product-image-wrapper"
+                  data-object-fit-item
+                >
+                  {% if onboard %}
+                    {{ 'product-1' | placeholder_svg_tag: 'placeholder-svg' }}
+                  {% else %}
+                    {%
+                      include 'rimg',
+                      class: 'testimonial-product-image-img',
+                      img: product.featured_image,
+                      size: '61x61',
+                      lazy: false
+                    %}
+                  {% endif %}
+                </div>
+              </figure>
+            {% endif %}
+
+            <div class="testimonial-product-info">
+              <h2 class="testimonial-product-title">
+                {{ product_title }}
+              </h2>
+              {%
+                include 'product-price',
+                component_scope: 'testimonial-product-price'
+                on_sale: on_sale,
+                compare_at_price: compare_at_price,
+                price_varies: price_varies,
+                price: price
+              %}
+            </div>
+
+            <div class="testimonial-product-button">
+              {%
+                include 'icons',
+                id: 'chevron'
+              %}
+            </div>
+          </div>
+        </a>
+      {% endif %}
+    </div>
+  </div>
+</article>

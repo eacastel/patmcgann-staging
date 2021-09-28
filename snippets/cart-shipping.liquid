@@ -1,0 +1,76 @@
+{% assign default_province = '' %}
+{% assign default_zip = '' %}
+
+{% if section.settings.shipping_calc_default_country != blank %}
+  {% assign default_country = section.settings.shipping_calc_default_country | escape %}
+{% else %}
+  {% assign default_country = '' %}
+{% endif %}
+
+{% if shop.customer_accounts_enabled and customer %}
+  {% if customer.default_address.country != '' %}
+    {% assign default_country = customer.default_address.country %}
+  {% endif %}
+
+  {% if customer.default_address.province != '' %}
+    {% assign default_province = customer.default_address.province %}
+  {% endif %}
+
+  {% if customer.default_address.zip != '' %}
+    {% assign default_zip = customer.default_address.zip %}
+  {% endif %}
+{% endif %}
+
+<div class="cart-shipping-form" id="shipping-calculator" data-cart-shipping>
+  <div class="cart-shipping-form-fields">
+    {% assign cart_shipping_country_label = 'cart.shipping.country' | t %}
+    {%
+      include 'form-elements',
+      id: 'address_country',
+      name: 'address[country]',
+      type: 'select'
+      data_attr: 'default',
+      data_val: default_country,
+      value: country_option_tags,
+      label: cart_shipping_country_label
+    %}
+
+    <div id="address_province_container" style="display: none">
+      {% assign cart_shipping_province_label = 'cart.shipping.province' | t %}
+      {%
+        include 'form-elements',
+        id: 'address_province',
+        name: 'address[province]',
+        type: 'select'
+        data_attr: 'default',
+        data_val: default_province,
+        label: cart_shipping_province_label
+        label_id: 'address_province_label'
+      %}
+    </div>
+
+    {% assign cart_shipping_postalcode = 'cart.shipping.postalcode' | t %}
+    {%
+      include 'form-elements',
+      id: 'address_zip',
+      name: 'address[zip]',
+      value: default_zip,
+      type: 'text',
+      label: cart_shipping_postalcode
+    %}
+
+    {% assign cart_shipping_submit = 'cart.shipping.submit' | t %}
+    {%
+      include 'form-elements',
+      type: 'submit',
+      value: cart_shipping_submit,
+      data_attr: 'cart-shipping-submit'
+    %}
+  </div>
+  <div class="international-shipping-message">Contact us for international shipping rates. Tel:(310) 657-8708 </div>
+
+  <div class="cart-shipping-response" data-cart-shipping-response>
+    <div class="cart-shipping-message" data-cart-shipping-message></div>
+    <ul class="cart-shipping-rates" data-cart-shipping-rates></ul>
+  </div>
+</div>

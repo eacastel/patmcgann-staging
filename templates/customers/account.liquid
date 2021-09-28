@@ -1,0 +1,104 @@
+<article class="site-page background-alternate site-account-account">
+  <header class="page-masthead">
+    <h1 class="page-title">
+      {{ 'account.account.title' | t }}
+    </h1>
+  </header>
+
+  <div class="page-container">
+    <div class="page-content rte">
+      <div class="account-account">
+        <div class="account-info">
+          <div>
+            <span class="account-name">{{ customer.name }}</span>
+            <span class="account-email">
+              (<a href="mailto:{{ customer.email }}">
+                {{ customer.email }}
+              </a>)
+            </span>
+          </div>
+
+          {% if customer.default_address != nil %}
+            <div class="account-address">
+             <div class="account-address-details">
+                {{ customer.default_address | format_address }}
+              </div>
+            </div>
+          {% endif %}
+
+          {% if customer.addresses_count == 0 %}
+            <a href="/account/addresses">{{ 'account.account.new_address' | t }}</a>
+          {% else %}
+            <p>
+              <a href="/account/addresses">
+                {{ 'account.account.view_addresses' | t: count: customer.addresses_count }}
+              </a>
+            </p>
+          {% endif %}
+        </div>
+
+        <div class="account-order-history">
+          <span class="account-orders">{{ 'account.account.orders' | t }}</span>
+
+          {% if customer.orders.size > 0 %}
+            {% paginate customer.orders by 20 %}
+              <table class="account-orders-table">
+                <thead>
+                  <tr>
+                    <th class="account-orders-table-order">
+                      {{ 'account.account.order' | t }}
+                    </th>
+                    <th class="account-orders-table-payment">
+                      {{ 'account.account.payment' | t }}
+                    </th>
+                    <th class="account-orders-table-fulfillment">
+                      {{ 'account.account.fulfillment' | t }}
+                    </th>
+                    <th class="account-orders-table-total">
+                      {{ 'account.account.total' | t }}
+                    </th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  {% for order in customer.orders %}
+                    <tr class="{% if order.cancelled %}cancelled_order{% endif %}">
+                      <td class="account-orders-table-order">
+                        {{ order.name | link_to: order.customer_url }}
+
+                        <span class="account-orders-table-date">
+                          - {{ order.created_at | date: format: 'short_day_month_year' }}
+                        </span>
+                      </td>
+                      <td class="account-orders-table-payment">
+                        {{ order.financial_status_label | capitalize }}
+                      </td>
+                      <td class="account-orders-table-fulfillment">
+                        {{ order.fulfillment_status_label | capitalize }}
+                      </td>
+                      <td class="account-orders-table-total account-orders-price">
+                        <span class="money">
+                          {{ order.total_price | money }}
+                        </span>
+                      </td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+
+              {% include 'pagination' %}
+            {% endpaginate %}
+          {% else %}
+            <p class="empty">{{ 'account.account.empty' | t }}</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {%
+    include 'patterns',
+    size: 'large',
+    class: 'page-content-pattern'
+  %}
+</article>

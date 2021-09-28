@@ -1,0 +1,128 @@
+{% capture theme_settings %}
+  {{ settings.product_image_ratio }}
+{% endcapture %}
+<script
+  type="application/json"
+  data-section-id="{{ section.id }}"
+  data-section-type="dynamic-list-collections"
+>
+</script>
+
+
+<div class="list-collections" data-cards>
+  {% if section.settings.title != blank or section.settings.subheading != blank %}
+    <div class="grid-item-description">
+      {% if section.settings.subheading != blank %}
+        <h3 class="grid-description-subheading">
+          {{ section.settings.subheading | escape }}
+        </h3>
+      {% endif %}
+
+      {% if section.settings.title != blank %}
+        <h2 class="grid-description-heading">
+          {{ section.settings.title | escape }}
+        </h2>
+      {% endif %}
+    </div>
+  {% endif %}
+
+  {%- for block in section.blocks -%}
+    {%-
+      include 'collection-item',
+      block_attributes: block.shopify_attributes,
+      collection: collections[block.settings.collection],
+      custom_image: block.settings.image
+      show_description: section.settings.show_descriptions,
+      show_collection_link: true,
+      external_link_on: block.settings.enable_external_link,
+      external_link: block.settings.external_link
+    -%}
+  {%- else -%}
+    {% assign collection_limit = 3 %}
+    {% if section.settings.title == blank and section.settings.subheading == blank %}
+      {% assign collection_limit = 4 %}
+    {% endif %}
+    {% for i in (1..collection_limit) %}
+      {%
+        include 'collection-item',
+        show_description: section.settings.show_descriptions,
+        external_link_on: block.settings.enable_external_link,
+        external_link: block.settings.external_link
+      %}
+    {% endfor %}
+  {%- endfor -%}
+</div>
+
+
+{% schema %}
+{
+  "name": "Collection list",
+  "class": "section-dynamic-list-collections",
+  "settings": [
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Heading",
+      "default": "Collection list"
+    },
+    {
+      "type": "text",
+      "id": "subheading",
+      "label": "Subheading"
+    },
+    {
+      "id": "show_descriptions",
+      "type": "checkbox",
+      "label": "Show descriptions",
+      "default": false
+    }
+  ],
+  "max_blocks": 7,
+  "blocks": [
+    {
+      "type": "collection",
+      "name": "Collection",
+      "settings": [
+        {
+          "id": "collection",
+          "type": "collection",
+          "label": "Collection"
+        },
+        {
+          "id": "image",
+          "type": "image_picker",
+          "label": "Image"
+        },
+        {
+          "id": "enable_external_link",
+          "type": "checkbox",
+          "label": "Enable External Link"
+        },
+        {
+          "id": "external_link",
+          "type": "url",
+          "label": "External Link"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "category": "Collection",
+      "name": "Collection list",
+      "blocks": [
+        {
+          "type": "collection"
+        },
+        {
+          "type": "collection"
+        },
+        {
+          "type": "collection"
+        }
+      ]
+    }
+  ]
+}
+
+{% endschema %}

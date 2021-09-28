@@ -1,0 +1,99 @@
+{%- capture video_code -%}
+  <div class="video-block-media {{ aspect_ratio }}">
+    <div class="video-block-edge">
+      {%- if video_url != blank -%}
+        {%- if video_url.type == "youtube" -%}
+            <iframe
+              src="//www.youtube.com/embed/{{ video_url.id }}?rel=0&showinfo=0&vq=720&showinfo=0"
+              frameborder="0"
+              allowfullscreen
+            ></iframe>
+          {%- endif -%}
+          {%- if video_url.type == "vimeo" -%}
+            <iframe
+              src="//player.vimeo.com/video/{{ video_url.id }}?byline=0&portrait=0&badge=0"
+              frameborder="0"
+              allowfullscreen
+            ></iframe>
+          {%- endif -%}
+      {%- else -%}
+          <iframe
+            src="//www.youtube.com/embed/_9VUPq3SxOc?rel=0&playsinline=1&showinfo=0"
+            frameborder="0"></iframe>
+      {%- endif -%}
+
+      {% if image %}
+        <div class="video-block-overlay" data-video-overlay>
+          <div class="video-block-image">
+            {%
+              include 'rimg',
+              img: image,
+              size: '1160x560',
+              lazy: true
+            %}
+          </div>
+
+          {% assign existing_alpha = overlay_color | color_extract: 'alpha' | round %}
+          {% if overlay_opacity != 0 and existing_alpha != 0 %}
+            {% assign overlay_alpha = overlay_opacity | times: 0.01 %}
+            <div
+              class="video-block-overlay-fill"
+              style="background-color: {{ overlay_color | color_modify: 'alpha', overlay_alpha }}"
+            >
+            </div>
+          {% endif %}
+
+          <button
+            class="
+              video-block-button
+              {% if button_style == 'secondary' %}video-block-button-secondary{% endif %}
+            "
+            data-video-play
+            aria-label="{{ 'general.accessibility.play_video' | t }}"
+          >
+            {% include 'icons', id: 'play_button' %}
+            {% include 'icons', id: 'loader' %}
+          </button>
+        </div>
+      {% endif %}
+    </div>
+    {%
+      include 'patterns',
+      size: 'small',
+      class: 'video-block-pattern'
+    %}
+  </div>
+{%- endcapture -%}
+
+<section class="video-block" data-video-block data-video-id="{{ block_id }}">
+  <div class="video-block-inner">
+    {%- capture image_block_classes %}
+      video-block-content
+      text-layout-{{ text_layout }}
+    {%- endcapture -%}
+
+    {% if text_layout == 'bottom' %}
+      {{ video_code }}
+    {% endif %}
+
+    <div class="{{ image_block_classes | strip_newlines }}">
+      {% if subheading != blank %}
+        <h3 class="video-block-subheading">{{ subheading | escape }}</h3>
+      {% endif %}
+
+      {% if title != blank %}
+        <h2 class="video-block-heading">{{ title | escape }}</h2>
+      {% endif %}
+
+      {% if text != blank %}
+        <div class="video-block-text rte">
+          {{ text }}
+        </div>
+      {% endif %}
+    </div>
+
+    {% if text_layout == 'top' %}
+      {{ video_code }}
+    {% endif %}
+  </div>
+</section>

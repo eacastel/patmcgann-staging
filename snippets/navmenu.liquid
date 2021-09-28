@@ -1,0 +1,88 @@
+{% comment %}
+  @param depth Number
+         The starting depth to use for the class names.
+
+  @param is_submenu Bool
+         Add submenu classes
+
+  @param max_depth Number
+         The maximum depth to traverse.
+
+  @param menu LinkedList
+         The menu handle to look up.
+
+  @param sub_menu_title String
+         Menu title must be passed if is submenu
+{% endcomment %}
+
+{%- capture navmenu_classes -%}
+  navmenu
+  navmenu-depth-{{ depth }}
+  {% if is_submenu %}navmenu-submenu{% endif %}
+{%- endcapture -%}
+
+{% assign menu_title = false %}
+{%- if is_submenu -%}
+  {% assign menu_list = menu %}
+  {% assign menu_title = sub_menu_title %}
+{%- else -%}
+  {% assign menu_list = linklists[menu] %}
+  {% assign menu_title = linklists[menu].title %}
+{%- endif-%}
+
+{% if menu_list.links.size > 0 %}
+  <ul
+    class="{{ navmenu_classes | strip_newlines }}"
+    aria-label="{{ menu_title }}"
+    {% if is_submenu %}data-navmenu-submenu{% endif %}
+  >
+    {%- for link in menu_list.links -%}
+      {% assign next_depth = depth | plus: 1 %}
+      {% assign show_subnav = false %}
+      {%- if next_depth <= max_depth and link.levels > 0 -%}
+        {% assign show_subnav = true %}
+      {%- endif -%}
+
+      {% unless show_subnav %}
+        <li class="navmenu-item">
+          <a class="navmenu-link navmenu-link-depth-{{ depth }}" href="{{ link.url }}" target="_blank">
+            {{ link.title }}
+          </a>
+        </li>
+      {% else %}
+        <li class="navmenu-item navmenu-item-has-submenu">
+          <a
+            class="navmenu-link navmenu-link-depth-{{ depth }}"
+            href="{{ link.url }}"
+            data-navmenu-trigger
+            aria-expanded="false"
+          >
+            {{ link.title }}
+
+            <span class="navmenu-icon navmenu-icon-depth-{{ depth }}">
+              {%-
+                include 'icons',
+                id: 'plus',
+                icon_class: 'navmenu-icon-plus'
+              -%}
+              {%-
+                include 'icons',
+                id: 'minus',
+                icon_class: 'navmenu-icon-minus'
+              -%}
+            </span>
+          </a>
+
+          {%-
+            include 'navmenu',
+            menu: link,
+            depth: next_depth,
+            max_depth: max_depth,
+            is_submenu: true,
+            sub_menu_title: link.title
+          -%}
+        </li>
+      {% endunless %}
+    {%- endfor -%}
+  </ul>
+{% endif %}

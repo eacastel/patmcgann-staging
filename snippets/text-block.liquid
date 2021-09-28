@@ -1,0 +1,21 @@
+<section class="text-block {{ background }}">
+  <div class="text-block-inner">
+    <div class="text-block-border">
+      <div class="text-block-content text-layout-{{ text_layout }}">
+        {% if subheading != blank %}
+          <h3 class="text-block-subheading">{{ subheading | escape }}</h3>
+        {% endif %}
+
+        {% if title != blank %}
+          <h2 class="text-block-heading">{{ title | escape }}</h2>
+        {% endif %}
+
+        {% if text != blank %}
+          <div class="text-block-text rte">
+            {{ text }}
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</section>

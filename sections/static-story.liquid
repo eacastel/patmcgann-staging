@@ -1,0 +1,963 @@
+<script
+  type="application/json"
+  data-section-id="{{ section.id }}"
+  data-section-type="static-story"
+>
+</script>
+
+{% for block in section.blocks %}
+  <div
+    class="story-block story-block-{{ block.type }}"
+    data-story-block="{{ block.type }}"
+    data-story-id="{{ block.id }}"
+    {{ block.shopify_attributes }}
+  >
+    {% case block.type %}
+      {% when 'features-list' %}
+        {%
+          include 'features-list',
+          title: block.settings.title,
+          subheading: block.settings.subheading,
+          background: block.settings.background
+        %}
+      {% when 'image-with-text-overlay' %}
+        {%
+          include 'image-block',
+          image: block.settings.image,
+          text_layout: block.settings.text_layout,
+          title: block.settings.title,
+          subheading: block.settings.subheading,
+          text: block.settings.text,
+          custom_color: block.settings.custom_color,
+          text_color: block.settings.text_color,
+          link: block.settings.link,
+          link_text: block.settings.link_text,
+          overlay_color: block.settings.overlay_color,
+          overlay_opacity: block.settings.overlay_opacity
+        %}
+      {% when 'images-with-text' %}
+        {% include 'images-with-text' %}
+      {% when 'rich-text' %}
+        {%
+          include 'text-block',
+          background: block.settings.background,
+          text_layout: block.settings.text_layout,
+          title: block.settings.title,
+          subheading: block.settings.subheading,
+          text: block.settings.text
+        %}
+      {% when 'share' %}
+        {%
+          include 'image-block',
+          image: block.settings.image,
+          text_layout: 'center',
+          title: block.settings.title,
+          subheading: block.settings.subheading,
+          custom_color: block.settings.custom_color,
+          text_color: block.settings.text_color,
+          overlay_color: block.settings.overlay_color,
+          overlay_opacity: block.settings.overlay_opacity,
+          show_as_share: true,
+          share_id: block.id
+        %}
+      {% when 'video-with-text' %}
+        {%
+          include 'video-block',
+          text_layout: block.settings.text_layout,
+          title: block.settings.title,
+          subheading: block.settings.subheading,
+          text: block.settings.text,
+          video_url: block.settings.video_url,
+          block_id: block.id,
+          image: block.settings.image,
+          button_style: block.settings.button_style,
+          aspect_ratio: block.settings.aspect_ratio,
+          overlay_color: block.settings.overlay_color,
+          overlay_opacity: block.settings.overlay_opacity,
+        %}
+      {% when 'gallery' %}
+        {% assign image_count = 0 %}
+        {% assign image_settings = '' %}
+        {% for i in (1..6) %}
+          {% assign image_setting = 'image_' | append: i %}
+          {% if block.settings[image_setting] %}
+            {% assign image_count = image_count | plus: 1 %}
+            {% assign image_settings = image_settings | append: '|' | append: image_setting %}
+          {% endif %}
+        {% endfor %}
+        {% assign image_settings = image_settings | remove_first: '|' | split: '|' %}
+
+        {% comment %}If no images, default to 6 for placeholders{% endcomment %}
+        {% if image_count == 0 %}
+          {% assign image_count = 6 %}
+        {% endif %}
+
+        {%
+          include 'gallery',
+          title: block.settings.title,
+          subheading: block.settings.subheading,
+          background_style: block.settings.background,
+          image_count: image_count,
+          image_1: block.settings[image_settings[0]],
+          image_2: block.settings[image_settings[1]],
+          image_3: block.settings[image_settings[2]],
+          image_4: block.settings[image_settings[3]],
+          image_5: block.settings[image_settings[4]],
+          image_6: block.settings[image_settings[5]]
+        %}
+      {% when 'testimonials' %}
+        {%
+          include 'story-testimonials',
+          title: block.settings.title,
+          subheading: block.settings.subheading,
+          background_style: block.settings.background
+        %}
+      {% else %}
+        <div class="todo">{{ block.type }}</div>
+    {% endcase %}
+  </div>
+{% endfor %}
+
+{% schema %}
+{
+  "name": "Story",
+  "class": "section-static-story",
+  "settings": [],
+  "blocks": [
+    {
+      "type": "features-list",
+      "name": "Features list",
+      "limit": 6,
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Heading",
+          "default": "Features list"
+        },
+        {
+          "type": "text",
+          "id": "subheading",
+          "label": "Subheading"
+        },
+        {
+          "type": "select",
+          "id": "background",
+          "label": "Background",
+          "options": [
+            {
+              "value": "background-default",
+              "label": "Default"
+            },
+            {
+              "value": "background-alternate",
+              "label": "Alternate"
+            }
+          ],
+          "default": "background-default"
+        },
+        {
+          "type": "header",
+          "content": "Feature 1"
+        },
+        {
+          "type": "text",
+          "id": "icon_1",
+          "label": "Icon",
+          "info": "[Click here](http://fontawesome.io/icons/) to view available icons. Example: snowflake-o"
+        },
+        {
+          "type": "text",
+          "id": "heading_1",
+          "label": "Heading",
+          "default": "Add a title or tagline"
+        },
+        {
+          "type": "richtext",
+          "id": "caption_1",
+          "label": "Text",
+          "default": "<p>Display up to six features with an option to toggle icons on or off, and add unique calls to action.</p>"
+        },
+        {
+          "type": "header",
+          "content": "Feature 2"
+        },
+        {
+          "type": "text",
+          "id": "icon_2",
+          "label": "Icon",
+          "info": "[Click here](http://fontawesome.io/icons/) to view available icons. Example: snowflake-o"
+        },
+        {
+          "type": "text",
+          "id": "heading_2",
+          "label": "Heading",
+          "default": "Add a title or tagline"
+        },
+        {
+          "type": "richtext",
+          "id": "caption_2",
+          "label": "Text",
+          "default": "<p>Display up to six features with an option to toggle icons on or off, and add unique calls to action.</p>"
+        },
+        {
+          "type": "header",
+          "content": "Feature 3"
+        },
+        {
+          "type": "text",
+          "id": "icon_3",
+          "label": "Icon",
+          "info": "[Click here](http://fontawesome.io/icons/) to view available icons. Example: snowflake-o"
+        },
+        {
+          "type": "text",
+          "id": "heading_3",
+          "label": "Heading",
+          "default": "Add a title or tagline"
+        },
+        {
+          "type": "richtext",
+          "id": "caption_3",
+          "label": "Text",
+          "default": "<p>Display up to six features with an option to toggle icons on or off, and add unique calls to action.</p>"
+        },
+        {
+          "type": "header",
+          "content": "Feature 4"
+        },
+        {
+          "type": "text",
+          "id": "icon_4",
+          "label": "Icon",
+          "info": "[Click here](http://fontawesome.io/icons/) to view available icons. Example: snowflake-o"
+        },
+        {
+          "type": "text",
+          "id": "heading_4",
+          "label": "Heading",
+          "default": "Add a title or tagline"
+        },
+        {
+          "type": "richtext",
+          "id": "caption_4",
+          "label": "Text",
+          "default": "<p>Display up to six features with an option to toggle icons on or off, and add unique calls to action.</p>"
+        },
+        {
+          "type": "header",
+          "content": "Feature 5"
+        },
+        {
+          "type": "text",
+          "id": "icon_5",
+          "label": "Icon",
+          "info": "[Click here](http://fontawesome.io/icons/) to view available icons. Example: snowflake-o"
+        },
+        {
+          "type": "text",
+          "id": "heading_5",
+          "label": "Heading",
+          "default": "Add a title or tagline"
+        },
+        {
+          "type": "richtext",
+          "id": "caption_5",
+          "label": "Text",
+          "default": "<p>Display up to six features with an option to toggle icons on or off, and add unique calls to action.</p>"
+        },
+        {
+          "type": "header",
+          "content": "Feature 6"
+        },
+        {
+          "type": "text",
+          "id": "icon_6",
+          "label": "Icon",
+          "info": "[Click here](http://fontawesome.io/icons/) to view available icons. Example: snowflake-o"
+        },
+        {
+          "type": "text",
+          "id": "heading_6",
+          "label": "Heading",
+          "default": "Add a title or tagline"
+        },
+        {
+          "type": "richtext",
+          "id": "caption_6",
+          "label": "Text",
+          "default": "<p>Display up to six features with an option to toggle icons on or off, and add unique calls to action.</p>"
+        }
+      ]
+    },
+    {
+      "type": "gallery",
+      "name": "Gallery",
+      "limit": 6,
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Heading",
+          "default": "Gallery"
+        },
+        {
+          "type": "text",
+          "id": "subheading",
+          "label": "Subheading"
+        },
+        {
+          "type": "select",
+          "id": "background",
+          "label": "Background",
+          "options": [
+            {
+              "value": "background-default",
+              "label": "Default"
+            },
+            {
+              "value": "background-alternate",
+              "label": "Alternate"
+            }
+          ],
+          "default": "background-default"
+        },
+        {
+          "id": "image_1",
+          "type": "image_picker",
+          "label": "Image"
+        },
+        {
+          "id": "image_2",
+          "type": "image_picker",
+          "label": "Image"
+        },
+        {
+          "id": "image_3",
+          "type": "image_picker",
+          "label": "Image"
+        },
+        {
+          "id": "image_4",
+          "type": "image_picker",
+          "label": "Image"
+        },
+        {
+          "id": "image_5",
+          "type": "image_picker",
+          "label": "Image"
+        },
+        {
+          "id": "image_6",
+          "type": "image_picker",
+          "label": "Image"
+        }
+      ]
+    },
+    {
+      "type": "images-with-text",
+      "name": "Images with text",
+      "limit": 5,
+      "settings": [
+        {
+          "type": "header",
+          "content": "Image 1"
+        },
+        {
+          "id": "image_1",
+          "type": "image_picker",
+          "label": "Image"
+        },
+        {
+          "type": "text",
+          "id": "heading_1",
+          "label": "Heading",
+          "default": "Add a title or tagline"
+        },
+        {
+          "type": "richtext",
+          "id": "caption_1",
+          "label": "Text",
+          "default": "<p>Use an image and a short piece of text to illustrate your story.</p>"
+        },
+        {
+          "type": "header",
+          "content": "Image 2"
+        },
+        {
+          "id": "image_2",
+          "type": "image_picker",
+          "label": "Image"
+        },
+        {
+          "type": "text",
+          "id": "heading_2",
+          "label": "Heading",
+          "default": "Add a title or tagline"
+        },
+        {
+          "type": "richtext",
+          "id": "caption_2",
+          "label": "Text",
+          "default": "<p>Use an image and a short piece of text to illustrate your story.</p>"
+        },
+        {
+          "type": "header",
+          "content": "Image 3"
+        },
+        {
+          "id": "image_3",
+          "type": "image_picker",
+          "label": "Image"
+        },
+        {
+          "type": "text",
+          "id": "heading_3",
+          "label": "Heading",
+          "default": "Add a title or tagline"
+        },
+        {
+          "type": "richtext",
+          "id": "caption_3",
+          "label": "Text",
+          "default": "<p>Use an image and a short piece of text to illustrate your story.</p>"
+        },
+        {
+          "type": "header",
+          "content": "Image 4"
+        },
+        {
+          "id": "image_4",
+          "type": "image_picker",
+          "label": "Image"
+        },
+        {
+          "type": "text",
+          "id": "heading_4",
+          "label": "Heading",
+          "default": "Add a title or tagline"
+        },
+        {
+          "type": "richtext",
+          "id": "caption_4",
+          "label": "Text",
+          "default": "<p>Use an image and a short piece of text to illustrate your story.</p>"
+        }
+      ]
+    },
+    {
+      "type": "image-with-text-overlay",
+      "name": "Image with text overlay",
+      "limit": 5,
+      "settings": [
+        {
+          "id": "image",
+          "type": "image_picker",
+          "label": "Image",
+          "info": "1160 x 560px recommended"
+        },
+        {
+          "type": "select",
+          "id": "text_layout",
+          "label": "Text layout",
+          "options": [
+            {
+              "value": "left",
+              "label": "Left"
+            },
+            {
+              "value": "center",
+              "label": "Center"
+            },
+            {
+              "value": "right",
+              "label": "Right"
+            }
+          ],
+          "default": "center"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Heading",
+          "default": "Image with text overlay"
+        },
+        {
+          "type": "text",
+          "id": "subheading",
+          "label": "Subheading"
+        },
+        {
+          "type": "richtext",
+          "id": "text",
+          "label": "Text",
+          "default": "<p>Say a bit about your brand, a specific product, or promotion.</p>"
+        },
+        {
+          "type": "checkbox",
+          "id": "custom_color",
+          "label": "Use custom text color"
+        },
+        {
+          "type": "color",
+          "id": "text_color",
+          "label": "Custom text color",
+          "default": "#2f5d62"
+        },
+        {
+          "id": "link",
+          "type": "url",
+          "label": "Link"
+        },
+        {
+          "id": "link_text",
+          "type": "text",
+          "label": "Link text"
+        },
+        {
+          "type": "header",
+          "content": "Overlay"
+        },
+        {
+          "type": "color",
+          "id": "overlay_color",
+          "label": "Overlay color",
+          "default": "#ffffff"
+        },
+        {
+          "id": "overlay_opacity",
+          "type": "range",
+          "label": "Opacity",
+          "default": 50,
+          "min": 0,
+          "max": 90,
+          "step": 1,
+          "unit": "%"
+        }
+      ]
+    },
+    {
+      "type": "rich-text",
+      "name": "Rich text",
+      "limit": 5,
+      "settings": [
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Heading",
+      "default": "Rich text"
+    },
+    {
+      "type": "text",
+      "id": "subheading",
+      "label": "Subheading"
+    },
+    {
+      "type": "richtext",
+      "id": "text",
+      "label": "Text",
+      "default": "<p>Use this section to welcome customers to your store, say a bit about your brand, or share news and seasonal promotions.</p>"
+    },
+    {
+      "type": "select",
+      "id": "text_layout",
+      "label": "Text layout",
+      "options": [
+        {
+          "value": "left",
+          "label": "Left"
+        },
+        {
+          "value": "center",
+          "label": "Center"
+        },
+        {
+          "value": "right",
+          "label": "Right"
+        }
+      ],
+      "default": "center"
+    },
+
+    {
+      "type": "select",
+      "id": "background",
+      "label": "Background",
+      "options": [
+        {
+          "value": "background-default",
+          "label": "Default"
+        },
+        {
+          "value": "background-alternate",
+          "label": "Alternate"
+        }
+      ],
+      "default": "background-default"
+    }
+  ]
+    },
+    {
+      "type": "share",
+      "name": "Share",
+      "limit": 6,
+      "settings": [
+        {
+          "id": "image",
+          "type": "image_picker",
+          "label": "Image",
+          "info": "1160 x 560px recommended"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Heading",
+          "default": "Share our wonderful story with others!"
+        },
+        {
+          "type": "text",
+          "id": "subheading",
+          "label": "Subheading"
+        },
+        {
+          "type": "checkbox",
+          "id": "custom_color",
+          "label": "Use custom text color"
+        },
+        {
+          "type": "color",
+          "id": "text_color",
+          "label": "Custom text color",
+          "default": "#2f5d62"
+        },
+        {
+          "type": "header",
+          "content": "Overlay"
+        },
+        {
+          "type": "color",
+          "id": "overlay_color",
+          "label": "Overlay color",
+          "default": "#ffffff"
+        },
+        {
+          "id": "overlay_opacity",
+          "type": "range",
+          "label": "Opacity",
+          "default": 50,
+          "min": 0,
+          "max": 90,
+          "step": 1,
+          "unit": "%"
+        }
+      ]
+    },
+    {
+      "type": "testimonials",
+      "name": "Testimonials",
+      "limit": 5,
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Heading",
+          "default": "Testimonials"
+        },
+        {
+          "type": "text",
+          "id": "subheading",
+          "label": "Subheading"
+        },
+        {
+          "type": "select",
+          "id": "background",
+          "label": "Background",
+          "options": [
+            {
+              "value": "background-default",
+              "label": "Default"
+            },
+            {
+              "value": "background-alternate",
+              "label": "Alternate"
+            }
+          ],
+          "default": "background-default"
+        },
+        {
+          "type": "header",
+          "content": "Testimonial 1"
+        },
+        {
+          "type": "text",
+          "id": "testimonial_1_name",
+          "label": "Name",
+          "default": "Name"
+        },
+        {
+          "type": "url",
+          "id": "testimonial_1_link",
+          "label": "Link"
+        },
+        {
+          "type": "textarea",
+          "id": "testimonial_1_caption",
+          "label": "Caption",
+          "default": "Showcase up to three testimonials to build trust with potential customers."
+        },
+        {
+          "type": "select",
+          "id": "testimonial_1_style",
+          "label": "Style",
+          "options": [
+            {
+              "value": "standard",
+              "label": "Standard"
+            },
+            {
+              "value": "facebook",
+              "label": "Facebook"
+            },
+            {
+              "value": "twitter",
+              "label": "Twitter"
+            }
+          ],
+          "default": "standard"
+        },
+        {
+          "type": "product",
+          "id": "testimonial_1_product_handle",
+          "label": "Product"
+        },
+        {
+          "type": "header",
+          "content": "Testimonial 2"
+        },
+        {
+          "type": "text",
+          "id": "testimonial_2_name",
+          "label": "Name",
+          "default": "Name"
+        },
+        {
+          "type": "url",
+          "id": "testimonial_2_link",
+          "label": "Link"
+        },
+        {
+          "type": "textarea",
+          "id": "testimonial_2_caption",
+          "label": "Caption",
+          "default": "Showcase up to three testimonials to build trust with potential customers."
+        },
+        {
+          "type": "select",
+          "id": "testimonial_2_style",
+          "label": "Style",
+          "options": [
+            {
+              "value": "standard",
+              "label": "Standard"
+            },
+            {
+              "value": "facebook",
+              "label": "Facebook"
+            },
+            {
+              "value": "twitter",
+              "label": "Twitter"
+            }
+          ],
+          "default": "standard"
+        },
+        {
+          "type": "product",
+          "id": "testimonial_2_product_handle",
+          "label": "Product"
+        },
+        {
+          "type": "header",
+          "content": "Testimonial 3"
+        },
+        {
+          "type": "text",
+          "id": "testimonial_3_name",
+          "label": "Name",
+          "default": "Name"
+        },
+        {
+          "type": "url",
+          "id": "testimonial_3_link",
+          "label": "Link"
+        },
+        {
+          "type": "textarea",
+          "id": "testimonial_3_caption",
+          "label": "Caption",
+          "default": "Showcase up to three testimonials to build trust with potential customers."
+        },
+        {
+          "type": "select",
+          "id": "testimonial_3_style",
+          "label": "Style",
+          "options": [
+            {
+              "value": "standard",
+              "label": "Standard"
+            },
+            {
+              "value": "facebook",
+              "label": "Facebook"
+            },
+            {
+              "value": "twitter",
+              "label": "Twitter"
+            }
+          ],
+          "default": "standard"
+        },
+        {
+          "type": "product",
+          "id": "testimonial_3_product_handle",
+          "label": "Product"
+        }
+      ]
+    },
+    {
+      "type": "video-with-text",
+      "name": "Video with text",
+      "limit": 5,
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Heading",
+          "default": "Video with text"
+        },
+        {
+          "type": "text",
+          "id": "subheading",
+          "label": "Subheading"
+        },
+        {
+          "type": "richtext",
+          "id": "text",
+          "label": "Text",
+          "default": "<p>Enhance your homepage with a video that relates to your process, products, or story.</p>"
+        },
+        {
+          "type": "select",
+          "id": "text_layout",
+          "label": "Text layout",
+          "options": [
+            {
+              "value": "top",
+              "label": "Top"
+            },
+            {
+              "value": "bottom",
+              "label": "Bottom"
+            }
+          ],
+          "default": "top"
+        },
+        {
+          "type": "video_url",
+          "id": "video_url",
+          "label": "Youtube or Vimeo link",
+          "accept": ["youtube", "vimeo"],
+          "default": "https://www.youtube.com/watch?v=_9VUPq3SxOc"
+        },
+        {
+          "id": "aspect_ratio",
+          "type": "select",
+          "label": "Video aspect ratio",
+          "default": "aspect-ratio-16-by-9",
+          "options": [
+            {
+              "value": "aspect-ratio-16-by-9",
+              "label": "16:9"
+            },
+            {
+              "value": "aspect-ratio-21-by-9",
+              "label": "21:9"
+            }
+          ]
+        },
+        {
+          "id": "image",
+          "type": "image_picker",
+          "label": "Cover image",
+          "info": "Optional. A play button will be displayed if an image has been selected"
+        },
+        {
+          "type": "select",
+          "id": "button_style",
+          "label": "Play button style",
+          "options": [
+            {
+              "value": "primary",
+              "label": "Primary"
+            },
+            {
+              "value": "secondary",
+              "label": "Secondary"
+            }
+          ],
+          "default": "secondary"
+        },
+        {
+          "type": "header",
+          "content": "Overlay"
+        },
+        {
+          "type": "color",
+          "id": "overlay_color",
+          "label": "Overlay color",
+          "default": "#ffffff"
+        },
+        {
+          "id": "overlay_opacity",
+          "type": "range",
+          "label": "Opacity",
+          "default": 50,
+          "min": 0,
+          "max": 90,
+          "step": 1,
+          "unit": "%"
+        }
+      ]
+    }
+  ],
+  "default": {
+    "blocks": [
+      {
+        "type": "image-with-text-overlay",
+        "settings": {}
+      },
+      {
+        "type": "testimonials",
+        "settings": {}
+      },
+      {
+        "type": "gallery",
+        "settings": {}
+      },
+      {
+        "type": "video-with-text",
+        "settings": {}
+      },
+      {
+        "type": "features-list",
+        "settings": {}
+      },
+      {
+        "type": "share",
+        "settings": {}
+      }
+    ]
+  }
+}
+
+{% endschema %}

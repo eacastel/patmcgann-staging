@@ -1,0 +1,179 @@
+<script
+  type="application/json"
+  data-section-id="{{ section.id }}"
+  data-section-type="dynamic-blog-posts"
+>
+</script>
+
+{% assign blog = blogs[section.settings.blog] %}
+{% assign blog_url = '#' %}
+{% assign onboard = true %}
+
+{% if section.settings.blog != 'none' and blog.articles.size > 0 %}
+  {% assign onboard = false %}
+  {% assign blog_url = blog.url %}
+{% endif %}
+
+{% assign article_count = section.settings.post_limit %}
+{% if onboard == false and blog.articles.size < article_count %}
+  {% assign article_count = blog.articles.size %}
+{% endif %}
+
+<section class="home-blog-posts {{ section.settings.background }}">
+  {% if section.settings.title != blank or section.settings.subheading != blank %}
+    <div class="blog-posts-header">
+      {% if section.settings.subheading != blank %}
+        <h3 class="blog-posts-subheading">
+          {{ section.settings.subheading | escape }}
+        </h3>
+      {% endif %}
+
+      {% if section.settings.title != blank %}
+        <h2 class="blog-posts-heading">
+          {{ section.settings.title | escape }}
+        </h2>
+      {% endif %}
+    </div>
+  {% endif %}
+
+  <div
+    class="
+      blog-posts
+      {% if onboard or article_count < 3 %}
+        blog-posts-centered
+      {% endif %}
+    "
+    data-blog-posts
+  >
+    {% unless onboard %}
+      {% for article in blog.articles limit: article_count %}
+        {%
+          include 'article-excerpt',
+          article: article,
+          button_style: section.settings.read_more_button_style,
+        %}
+      {% endfor %}
+    {% else %}
+      {% for i in (1..article_count) %}
+        {%
+          include 'article-excerpt',
+          onboard: true,
+          button_style: section.settings.read_more_button_style,
+        %}
+      {% endfor %}
+    {% endunless %}
+  </div>
+
+  <div class="blog-posts-footer">
+    <a class="blog-posts-footer-link" href="{{ blog_url }}">
+        {{ 'blog.general.see_more' | t }}
+    </a>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Blog posts",
+  "class": "section-dynamic-blog-posts",
+  "settings": [
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Heading",
+      "default": "Blog posts"
+    },
+    {
+      "type": "text",
+      "id": "subheading",
+      "label": "Subheading"
+    },
+    {
+      "type": "blog",
+      "id": "blog",
+      "label": "Blog"
+    },
+    {
+      "type": "range",
+      "id": "post_limit",
+      "label": "Posts",
+      "min": 3,
+      "max": 12,
+      "step": 3,
+      "default": 3
+    },
+    {
+      "type": "checkbox",
+      "id": "show_date",
+      "label": "Show date published",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_author",
+      "label": "Show post author",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_comments_count",
+      "label": "Show post comments count",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_excerpt",
+      "label": "Show post excerpt",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_tags",
+      "label": "Show post tags",
+      "default": true
+    },
+    {
+      "type": "select",
+      "id": "read_more_button_style",
+      "label": "Read more button style",
+      "options": [
+        {
+          "value": "primary",
+          "label": "Primary"
+        },
+        {
+          "value": "secondary",
+          "label": "Secondary"
+        }
+      ],
+      "default": "secondary"
+    },
+    {
+      "type": "select",
+      "id": "background",
+      "label": "Background",
+      "options": [
+        {
+          "value": "background-default",
+          "label": "Default"
+        },
+        {
+          "value": "background-alternate",
+          "label": "Alternate"
+        }
+      ],
+      "default": "background-default"
+    }
+  ],
+  "presets": [
+    {
+      "category": "Blog",
+      "name": "Blog posts",
+      "settings": {
+        "title": "Blog posts",
+        "blog": "none"
+      }
+    }
+  ]
+}
+
+{% endschema %}

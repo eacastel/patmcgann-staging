@@ -1,0 +1,54 @@
+{% include 'advanced-tag-loop' %}
+{% comment %}
+  Loop through tag groups
+{% endcomment %}
+
+{% for cat_item in cat_array %}
+  {% assign tag_count = 0 %}
+  <div class="collection-popover-item">
+    <h3 class="collection-popover-subtitle">
+      {{ cat_item }}
+    </h3>
+    <ul class="popover-list-filter-groups">
+      {% comment %}
+        Loop through collection tags
+      {% endcomment %}
+      {% for tag in collection.all_tags %}
+      	{%- unless tag contains 'searchonly' -%}
+          {% assign cat = tag | split: '_' | first %}
+          {% if cat != tag and cat_item == cat %}
+            {% assign tag_count = tag_count | plus: 1 %}
+            {% comment %}
+              Strip out tag category prefix and add/remove link for tag filtering
+            {% endcomment %}
+            {%- capture tag_text -%}
+              {{- item_icon -}}
+
+              <span class="popover-list-item-text">
+                {{ tag | remove_first: cat | remove_first: '_' }}
+              </span>
+            {%- endcapture -%}
+
+            {% assign item_class = 'popover-list-item' %}
+            {%- if current_tags contains tag -%}
+              {% assign item_class = item_class | append: ' popover-list-item-active' %}
+            {%- endif -%}
+
+            <li
+              class="{{ item_class }}"
+              data-collection-filter-advanced
+              data-group="{{ cat_item }}"
+              data-handle="{{ tag | handle }}"
+            >
+              {% if current_tags contains tag %}
+                {{ tag_text | link_to_remove_tag: tag }}
+              {% else %}
+                {{ tag_text | link_to_add_tag: tag }}
+              {% endif %}
+            </li>
+          {% endif %}
+      	{%- endunless -%}
+      {% endfor %}
+    </ul>
+  </div>
+{% endfor %}

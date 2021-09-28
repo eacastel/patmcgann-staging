@@ -1,0 +1,131 @@
+{% capture theme_settings %}
+  {{ settings.product_image_ratio }}
+  {{ settings.enable_product_quickshop }}
+  {{ settings.qs_show_payment_button }}
+{% endcapture %}
+
+{% assign product_limit = section.settings.product_count %}
+
+{% unless section.settings.enable %}
+  {% break %}
+{% endunless %}
+
+<script
+  type="application/json"
+  data-section-id="{{ section.id }}"
+  data-section-type="static-related-products"
+>
+</script>
+
+{%- assign collection = collection | default: product.collections.first -%}
+{%- assign products = collection.products -%}
+{%- assign collection_product_count = collection.all_products_count | at_most: products.size | default: 0  -%}
+{%- assign actual_product_count = product_limit -%}
+
+{%- if collection != blank -%}
+  {%- comment -%}
+    If a product is defined, we retrieved the collection from that product.
+    Therefore, we must ignore that product in the count as we do not want to display it.
+  {%- endcomment -%}
+  {%- if product -%}
+    {%- assign collection_product_count = collection_product_count | minus: 1 -%}
+  {%- endif -%}
+
+  {%- if collection_product_count < product_count -%}
+    {%- assign actual_product_count = collection_product_count -%}
+  {%- endif -%}
+{%- endif -%}
+
+{%- assign loop_offset = 0 -%}
+{%- assign loop_product_count = 0 -%}
+
+{%- if collection_product_count == 0 -%}
+  {%- break -%}
+{%- endif -%}
+
+<section class="section-related-products {{ section.settings.background }}" >
+  <div class="productgrid" data-cards>
+    {% if section.settings.title != blank or section.settings.subheading != blank %}
+      <div class="grid-item-description">
+        {% if section.settings.subheading != blank %}
+          <h3 class="grid-description-subheading">
+            {{ section.settings.subheading | escape }}
+          </h3>
+        {% endif %}
+
+        {% if section.settings.title != blank %}
+          <h2 class="grid-description-heading">
+            {{ section.settings.title | escape }}
+          </h2>
+        {% endif %}
+      </div>
+    {% endif %}
+
+    {%- for item in products -%}
+      {%- if item.handle != product.handle -%}
+        {%
+          include 'product-item',
+          product: item,
+          is_interactive_card: true
+        %}
+        {%- assign loop_product_count = loop_product_count | plus: 1 -%}
+      {%- endif -%}
+
+      {%- if loop_product_count == actual_product_count -%}
+        {%- break -%}
+      {%- endif -%}
+    {% endfor %}
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Related products",
+  "class": "section-static-related-products",
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "enable",
+      "label": "Enable",
+      "default": false
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Heading",
+      "default": "Related products"
+    },
+    {
+      "type": "text",
+      "id": "subheading",
+      "label": "Subheading"
+    },
+    {
+      "type": "range",
+      "id": "product_count",
+      "label": "Product count",
+      "min": 2,
+      "max": 12,
+      "step": 1,
+      "default": 4
+    },
+    {
+      "type": "select",
+      "id": "background",
+      "label": "Background",
+      "options": [
+        {
+          "value": "background-default",
+          "label": "Default"
+        },
+        {
+          "value": "background-alternate",
+          "label": "Alternate"
+        }
+      ],
+      "default": "background-default"
+    }
+  ]
+}
+
+{% endschema %}

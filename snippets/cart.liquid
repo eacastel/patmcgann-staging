@@ -1,0 +1,231 @@
+{% comment %}
+  @param cart_mini {Bool}
+    Is the cart being loaded in the header
+
+  @param cart_inline {Bool}
+    Is the cart being displayed inline
+
+  @param cart_ajax {Bool}
+    Is the cart being loaded over ajax
+{% endcomment %}
+
+{% if cart_inline %}
+  {% assign cart_mini = true %}
+{% endif %}
+
+<section
+  class="
+    cart
+    {% if cart.items.size == 0 %}cart-empty{% endif %}
+    {% if cart_mini %}cart-mini{% endif %}
+    {% if cart_inline %}cart-inline{% endif %}
+  "
+  data-cart
+  {% if cart_inline %}
+    data-cart-inline
+  {% endif %}
+>
+  <div class="cart-container-empty">
+    <p class="cart-container-empty-text">{{ 'cart.general.empty' | t }}</p>
+
+    <a
+      class="cart-container-empty-continueshopping"
+      href="/collections"
+    >
+      {{ 'cart.general.continue_shopping' | t }}
+    </a>
+  </div>
+
+  <form class="cart-container" action="/cart" method="post" data-cart-form>
+    {% if cart_inline %}
+      <div class="cart-added-to-cart" data-product-atc-success>
+        <span>{{ 'cart.general.added_to_cart' | t }}</span>
+
+        <button
+          class="cart-close"
+          type="button"
+          aria-label="{{ 'general.accessibility.close' | t }}"
+          data-popover-toggle
+        >
+          {%
+            include 'icons',
+            id: 'close'
+          %}
+        </button>
+      </div>
+    {% endif %}
+
+    <div class="cart-container-scrollable">
+      <div class="cart-items">
+        <div class="cart-items-header cart-items-row">
+          <span class="cart-item-column cart-item-col-product cart-items-header-product">{{ 'cart.cart_items.product' | t }}</span>
+          <span class="cart-item-column cart-item-col-price cart-items-header-price">{{ 'cart.cart_items.price' | t }}</span>
+          <span class="cart-item-column cart-item-col-quantity cart-items-header-quantity">{{ 'cart.cart_items.quantity' | t }}</span>
+          <span class="cart-item-column cart-item-col-total cart-items-header-total">{{ 'cart.cart_items.total' | t }}</span>
+          <span class="cart-item-column cart-item-col-remove cart-items-header-remove"></span>
+        </div>
+
+        {% for item in cart.items %}
+          {%
+            include 'cart-item',
+            cart_mini: cart_mini,
+            cart_ajax: cart_ajax
+          %}
+        {% endfor %}
+
+        {% if cart_inline and cart.items.size > 1 %}
+          <button class="cart-otheritems-button" data-cart-otheritems-button>
+            {% assign count = cart.items.size | minus: 1 %}
+            {{ 'cart.cart_items.other_items_count' | t: count: count }}
+          </button>
+        {% endif %}
+      </div>
+
+      <div class="cart-footer">
+        <div class="cart-footer-column">
+          {% unless cart_inline %}
+            <div class="cart-note-shipping">
+              <div class="cart-note">
+                <div
+                  class="cart-expand-button"
+                  role="button"
+                  tabIndex="0"
+                  data-cart-expand
+                >
+                  <span class="cart-expand-text">
+                    {{ 'cart.cart_note.heading' | t }}
+                  </span>
+
+                  <span class="cart-expand-icon">
+                    {% include 'icons', id: 'chevron' %}
+                  </span>
+                </div>
+
+                {% assign cart_note_label = 'cart.cart_note.label' | t %}
+                {% assign cart_note_placeholder = 'cart.cart_note.placeholder' | t %}
+
+                <div class="cart-expandable" data-cart-expandable>
+                  {%
+                    include 'form-elements',
+                    aria_label: cart_note_label,
+                    name: 'note',
+                    placeholder: cart_note_placeholder,
+                    type: 'textarea'
+                    data_attr: 'cart-note',
+                    value: cart.note
+                  %}
+                </div>
+              </div>
+
+              {% unless cart_mini %}
+                {% if section.settings.shipping_calc_enable and cart.requires_shipping %}
+                  <div class="cart-shipping">
+                    <div
+                      class="cart-expand-button"
+                      role="button"
+                      tabIndex="0"
+                      data-cart-expand
+                    >
+                      <span class="cart-expand-text">
+                        {{ 'cart.shipping.heading' | t }}
+                      </span>
+
+                      <span class="cart-expand-icon">
+                        {% include 'icons', id: 'chevron' %}
+                      </span>
+                    </div>
+
+                    <div class="cart-expandable" data-cart-expandable>
+                      {% include 'cart-shipping' %}
+                    </div>
+                  </div>
+                {% endif %}
+              {% endunless %}
+            </div>
+          {% endunless %}
+        </div>
+
+        <div class="cart-footer-column">
+          <div class="cart-totals" data-cart-totals>
+            <div class="cart-total-row">
+              <span class="cart-total-row-title">{{ 'cart.general.subtotal' | t }}</span>
+              <div class="cart-total-row-value">
+                <span class="money" data-cart-subtotal>
+                  {{ cart.original_total_price | money }}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <noscript>
+            {% assign cart_update_text = 'cart.general.update' | t %}
+            <div class="cart-update">
+              {%
+                include 'form-elements',
+                aria_label: cart_update_text,
+                name: 'update',
+                value: cart_update_text,
+                type: 'submit'
+              %}
+            </div>
+          </noscript>
+
+          {% unless cart_mini %}
+            {% assign cart_submit_text = 'cart.general.checkout' | t %}
+            <div class="cart-submit">
+              {%
+                include 'form-elements',
+                secondary: true,
+                aria_label: cart_submit_text,
+                name: 'checkout',
+                value: cart_submit_text,
+                type: 'submit'
+                data_attr: 'cart-submit'
+              %}
+            </div>
+
+            {% if additional_checkout_buttons %}
+              <div class="cart-additional-checkout-buttons">
+                {{ content_for_additional_checkout_buttons }}
+              </div>
+            {% endif %}
+          {% endunless %}
+        </div>
+      </div>
+    </div>
+
+    {% if cart_mini %}
+      {% assign cart_submit_text = 'cart.general.checkout' | t %}
+      <div class="cart-submit">
+        <div class="cart-submit-viewcart">
+          <div class="form-element-wrapper form-element-wrapper-button">
+            <div
+              class="form-element-button"
+            >
+              <a
+                class="form-element button"
+                href="/cart"
+              >
+                {{ 'cart.general.cart' | t }}
+              </a>
+            </div>
+          </div>
+
+          {%
+            include 'form-elements',
+            secondary: true,
+            aria_label: cart_submit_text,
+            name: 'checkout',
+            value: cart_submit_text,
+            type: 'submit'
+            data_attr: 'cart-submit'
+          %}
+        </div>
+      </div>
+    {% endif %}
+  </form>
+
+  <span class="cart-loader">
+    {% include 'icons', id: 'loader' %}
+  </span>
+</section>

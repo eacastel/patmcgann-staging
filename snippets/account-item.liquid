@@ -1,0 +1,55 @@
+<div class="account-item-row account-item">
+  <div class="account-item-column account-item-col-product account-item-product">
+    <div class="account-item-visual">
+      <figure class="account-item-figure">
+         {%
+          include 'rimg',
+          class: 'account-item-image',
+          img: item.image,
+          size: '100x',
+          lazy: false
+        %}
+      </figure>
+    </div>
+
+    <div class="account-item-details">
+      {% if item.vendor != blank %}
+        <span class="account-item-vendor">
+          <a href="{{ item.vendor | url_for_vendor }}">
+            {{ item.vendor }}
+          </a>
+        </span>
+      {% endif %}
+
+      <span class="account-item-product-title">
+        <a href="{{ item.variant.url }}">
+          {{ item.product.title }}
+        </a>
+      </span>
+
+      {% unless item.product.has_only_default_variant %}
+        <span class="account-item-variant-title">
+          {{ item.variant.options | join: ', ' }}
+        </span>
+      {% endunless %}
+
+      <span class="account-item-price-mobile money" data-account-item-price>
+        {{ item.price | money }}
+      </span>
+    </div>
+  </div>
+
+  <div class="account-item-column account-item-col-price account-item-price">
+    <span class="money" data-account-item-price>{{ item.price | money }}</span>
+  </div>
+
+  <div class="account-item-column account-item-col-quantity account-item-quantity">
+    {{ item.quantity }}
+  </div>
+
+  <div class="account-item-column account-item-col-total account-item-total">
+    <span class="money">
+      {{ item.original_line_price | money }}
+    </span>
+  </div>
+</div>

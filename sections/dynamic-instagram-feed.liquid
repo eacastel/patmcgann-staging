@@ -1,0 +1,25 @@
+<script
+  type="application/json"
+  data-section-id="{{ section.id }}"
+  data-section-type="dynamic-instagram-feed"
+  data-section-data
+>
+
+{
+    "access_token": {{ section.settings.access_token | escape | json }}
+  }
+   
+</script>
+
+
+
+{% assign onboarding = false %}
+{% if section.settings.access_token != blank %}
+  {% assign onboarding = true %}
+{% endif %}
+
+
+<div class="mvv_insta" style="margin-top:100px;margin-bottom:150px"></div>
+
+
+

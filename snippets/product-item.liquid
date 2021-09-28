@@ -1,0 +1,125 @@
+{% comment %}
+  @param product {Object}
+    Required to show product information
+
+  @param is_interactive_card {Bool}
+    Set to `true` if product item acts as card on mobile
+{% endcomment %}
+
+{% assign onboard = false %}
+
+{% if product %}
+  {% assign compare_at_price = product.compare_at_price %}
+  {% assign price = product.price_min %}
+  {% assign price_varies = product.price_varies %}
+  {% assign product_available = product.available %}
+  {% assign product_title = product.title %}
+  {% assign product_link = product.url | within: collection %}
+  {% assign product_id = product.id %}
+  {% if collection and collection.handle %}
+    {% comment %}
+      Allow same products under different collection to pull
+      relative product information
+    {% endcomment %}
+    {% assign product_id = product_id | prepend: '-' | prepend: collection.handle %}
+  {% endif %}
+
+{% else %}
+  {% assign onboard = true %}
+  {% assign compare_at_price = 1999 %}
+  {% assign price = 1999 %}
+  {% assign price_varies = false %}
+  {% assign product_available = true %}
+  {% assign product_title = 'onboarding.product.title' | t %}
+  {% assign product_link = '#' %}
+{% endif %}
+
+{% assign on_sale = false %}
+{% for variant in product.variants %}
+  {% if variant.compare_at_price > variant.price %}
+    {% assign on_sale = true %}
+  {% endif %}
+{% endfor %}
+
+<article
+  class="product-item"
+  data-product-item
+  {% if product and settings.enable_product_quickshop %}
+    data-product-item-url="{{ product_link }}"
+    data-product-item-id="{{ product_id }}"
+  {% endif %}
+  {% if is_interactive_card %}
+    data-cards-player-card
+    data-cards-player-card-url="{% unless onboard %}{{ product_link }}{% endunless %}"
+  {% endif %}
+>
+  <figure
+    class="product-item-image grid-item-image"
+    {% if is_interactive_card %}data-cards-player-card-visual{% endif %}
+    data-object-fit-item
+  >
+    {% if product and settings.enable_product_quickshop %}
+      <div class="grid-item-overlay">
+        <button
+          class="grid-item-overlay-button"
+          data-product-quickshop-trigger
+        >
+          <span class="grid-item-overlay-button-text">
+            {{ 'product.item.quickshop' | t }}
+          </span>
+
+          <span class="grid-item-overlay-button-icon">
+            {% include 'icons', id: 'loader' %}
+          </span>
+        </button>
+      </div>
+    {% endif %}
+    <a class="product-item-image-link" href="{{ product_link }}"></a>
+
+    {%- if onboard == false and product.featured_image -%}
+      {%
+        include 'rimg',
+        class: 'product-item-image-img',
+        img: product.featured_image,
+        size: '512x',
+        lazy: true
+      %}
+    {%- else -%}
+      {%- capture index -%}
+        {%- cycle '1', '2', '3', '4', '5', '6' -%}
+      {%- endcapture -%}
+      {{ 'product-' | append: index | placeholder_svg_tag: 'placeholder-svg' }}
+    {%- endif -%}
+  </figure>
+
+  {%
+    include 'product-badge',
+    product_available: product_available,
+    on_sale: on_sale
+  %}
+
+  {%
+    include 'patterns',
+    size: 'small',
+    class: 'grid-item-pattern'
+  %}
+
+  <div class="product-item-info grid-item-info" data-cards-player-card-content>
+    <h2 class="product-item-title">
+      <a href="{{ product_link }}">
+        {{ product_title }}
+      </a>
+    </h2>
+
+    {% unless product.tags contains 'hide_price searchonly' %}
+    {%
+      include 'product-price',
+      component_scope: 'product-item-price'
+      on_sale: on_sale,
+      compare_at_price: compare_at_price,
+      price_varies: price_varies,
+      price: price
+    %}
+    {% endunless %}
+  </div>
+</article>

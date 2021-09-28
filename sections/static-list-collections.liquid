@@ -1,0 +1,62 @@
+{% capture theme_settings %}
+  {{ settings.product_image_ratio }}
+{% endcapture %}
+
+<script
+  type="application/json"
+  data-section-id="{{ section.id }}"
+  data-section-type="static-list-collections"
+>
+</script>
+
+<section class="list-collections-header">
+  <div class="list-collections-breadcrumbs">
+    {%-
+      include 'breadcrumbs',
+      is_mobile: false
+    -%}
+  </div>
+
+  <h1 class="list-collections-title">
+    {{ 'general.breadcrumbs.collections' | t }}
+  </h1>
+</section>
+
+{% paginate collections by section.settings.collections_per_page %}
+  <div class="list-collections" data-cards>
+    {%- for collection in collections -%}
+      {%-
+        include 'collection-item',
+        collection: collection,
+        show_description: section.settings.show_descriptions
+      -%}
+    {%- endfor -%}
+  </div>
+
+  {% include 'pagination' %}
+{% endpaginate %}
+
+{% schema %}
+{
+  "name": "Collections List",
+  "class": "section-static-list-collections",
+  "settings": [
+    {
+      "id": "show_descriptions",
+      "type": "checkbox",
+      "label": "Show descriptions",
+      "default": false
+    },
+    {
+      "type": "range",
+      "id": "collections_per_page",
+      "label": "Collections per page",
+      "min": 4,
+      "max": 20,
+      "step": 2,
+      "default": 8
+    }
+  ]
+}
+
+{% endschema %}

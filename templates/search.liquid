@@ -1,0 +1,145 @@
+<section class="search-page">
+  <header class="search-header">
+    <h1 class="search-title">
+      {{ 'search.general.title' | t: count: search.results_count, query: search.terms }}
+    </h1>
+  </header>
+
+  <div class="search-form">
+    {%
+      include 'search-form',
+      class: 'search-form-contents'
+    %}
+  </div>
+
+  {% if search.performed %}
+    <div class="search-results">
+      {% paginate search.results by 20 %}
+        {% assign product_count = 0 %}
+        {% assign article_count = 0 %}
+        {% assign page_count = 0 %}
+
+        {% for result in search.results %}
+          {% if result.object_type == 'product' %}
+            {% assign product_count = product_count | plus: 1 %}
+          {% elsif result.object_type == 'article' %}
+            {% assign article_count = article_count | plus: 1 %}
+          {% elsif result.object_type == 'page' %}
+            {% assign page_count = page_count | plus: 1 %}
+          {% endif %}
+        {% endfor %}
+
+        <div class="search-results-row">
+          <section class="search-product-results">
+            <div class="productgrid">
+              {% if product_count > 0 %}
+                {% for result in search.results %}
+                  {% if result.object_type == 'product' %}
+                    {%
+                      include 'product-item',
+                      product: result
+                    %}
+                  {% endif %}
+                {% endfor %}
+              {% else %}
+                {% assign title = 'search.general.product_results_none' | t %}
+                {% assign link = '/collections/all' %}
+                {% assign caption = 'product_grid.no_results.view_all_products' | t %}
+
+                {% if paginate.current_page > 1 %}
+                  {% assign title = 'search.general.product_results_no_more' | t %}
+                {% endif %}
+
+                <article class="productgrid-no-results">
+                  <h2 class="productgrid-no-results-title">
+                    {{ title }}
+                  </h2>
+
+                  <a class="productgrid-no-results-button" href="{{ link }}">
+                    {{ caption }}
+                  </a>
+                </article>
+              {% endif %}
+            </div>
+          </section>
+        </div>
+
+        {% if settings.enable_search_articles_pages %}
+          <div class="search-results-row search-results-row-article-pages">
+            <section class="search-article-results">
+              <h2 class="search-article-results-title">
+                {{ 'search.general.article_results' | t }}
+              </h2>
+
+              {% if article_count > 0 %}
+                <div class="search-article-results-articles">
+                  {% for result in search.results %}
+                    {% if result.object_type == 'article' %}
+                      <div class="search-article-result">
+                        {% if result.image %}
+                          <figure class="search-article-result-figure">
+                            <a href="{{ result.url }}">
+                              {%
+                                include 'rimg',
+                                class: 'search-article-result-image',
+                                img: result.image,
+                                size: '100x',
+                                lazy: false
+                              %}
+                            </a>
+                          </figure>
+                        {% endif %}
+
+                        <div class="search-article-result-details">
+                          <a
+                            href="{{ result.url }}"
+                            class="search-article-result-title"
+                          >
+                            {{ result.title }}
+                          </a>
+                        </div>
+                      </div>
+                    {% endif %}
+                  {% endfor %}
+                </div>
+              {% else %}
+                <span class="search-article-noresults">
+                  {{ 'search.general.article_results_none' | t }}
+                </span>
+              {% endif %}
+            </section>
+
+            <section class="search-page-results">
+              <h2 class="search-page-results-title">
+                {{ 'search.general.page_results' | t }}
+              </h2>
+
+              {% if page_count > 0 %}
+                <div class="search-page-results-pages">
+                  {% for result in search.results %}
+                    {% if result.object_type == 'page' %}
+                      <div class="search-page-result">
+                        <a
+                          href="{{ result.url }}"
+                          class="search-page-result-title"
+                        >
+                          {{ result.title }}
+                        </a>
+                      </div>
+                    {% endif %}
+                  {% endfor %}
+                </div>
+              {% else %}
+                <span class="search-page-noresults">
+                  {{ 'search.general.page_results_none' | t }}
+                </span>
+              {% endif %}
+            </section>
+          </div>
+        {% endif %}
+
+        {% include 'pagination' %}
+      {% endpaginate %}
+    </div>
+  {% endif %}
+</section>

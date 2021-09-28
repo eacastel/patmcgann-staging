@@ -1,0 +1,25 @@
+<article class="site-page background-alternate">
+  <header class="page-masthead">
+    <h1 class="page-title">
+      {{ page.title }}
+    </h1>
+  </header>
+
+    <div class="page-container">
+      <div class="page-content">
+        {% if page.content != blank %}
+          <div class="rte" data-rte>
+            {{ page.content }}
+          </div>
+        {% endif %}
+
+        {% section 'static-faq' %}
+      </div>
+    </div>
+
+    {%
+      include 'patterns',
+      size: 'large',
+      class: 'page-content-pattern'
+    %}
+</article>

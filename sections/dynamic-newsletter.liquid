@@ -1,0 +1,97 @@
+<div class="newsletter-outer {{ section.settings.background }}">
+  <div class="newsletter-inner">
+    {%
+      include 'patterns',
+      size: 'small',
+      class: 'newsletter-pattern-left'
+    %}
+    <div class="newsletter-border">
+      <article class="newsletter-content">
+        {% if section.settings.title != blank %}
+          <h2 class="newsletter-title">
+            {{ section.settings.title | escape }}
+          </h2>
+        {% endif %}
+
+        {% if section.settings.text != blank %}
+          <div class="newsletter-text rte">
+            {{ section.settings.text }}
+          </div>
+        {% endif %}
+
+        <div class="newsletter-full">
+          {%- assign form_id = 'dynamic_newsletter_' | append: section.id -%}
+          {%-
+            include 'newsletter',
+            form_id: form_id,
+          -%}
+        </div>
+
+        {% if section.settings.enable_background %}
+          <div class="newsletter-background-image">
+            {%
+              include 'icons',
+              id: 'email'
+            %}
+          </div>
+        {% endif %}
+      </article>
+    </div>
+    {%
+      include 'patterns',
+      size: 'small',
+      class: 'newsletter-pattern-right'
+    %}
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Newsletter",
+  "settings": [
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Heading"
+    },
+    {
+      "type": "richtext",
+      "id": "text",
+      "label": "Text",
+      "default": "<p>Invite customers to join your mailing list.</p>"
+    },
+    {
+      "type": "select",
+      "id": "background",
+      "label": "Background",
+      "options": [
+        {
+          "value": "background-default",
+          "label": "Default"
+        },
+        {
+          "value": "background-alternate",
+          "label": "Alternate"
+        }
+      ],
+      "default": "background-default"
+    },
+    {
+      "id": "enable_background",
+      "type": "checkbox",
+      "label": "Enable background image",
+      "default": true
+    }
+  ],
+  "presets": [
+    {
+      "category": "Text",
+      "name": "Newsletter",
+      "settings": {
+        "title": "Newsletter"
+      }
+    }
+  ]
+}
+
+{% endschema %}

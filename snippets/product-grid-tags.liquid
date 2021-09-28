@@ -1,0 +1,54 @@
+<div class="collection-popover-item">
+  <ul class="popover-list-filter-tags">
+    {% comment %}
+      Strip the prepended categories if they happen to exist.
+    {% endcomment %}
+	
+    <li class="{{ item_class }} {% if current_tags == blank %} popover-list-item-active{% endif %}" data-collection-filter>
+      <a href="{{ collection.url }}" 
+         title="Show All products"><span class="popover-list-item-icon">
+
+        <svg class="icon-check " aria-hidden="true" focusable="false" role="presentation" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">          <path fill="currentColor" fill-rule="evenodd" d="M4.854 12.146a.5.5 0 0 0-.708.708l5 5a.5.5 0 0 0 .708 0l11-11a.5.5 0 0 0-.708-.708L9.5 16.793l-4.646-4.647z"></path>        </svg>      
+
+        </span><span class="popover-list-item-text">All
+        </span></a>
+    </li>
+    
+    {% for tag in collection.all_tags %}
+      {%- unless tag contains 'searchonly' -%}
+        {% assign is_advanced_tag = false %}
+        {% assign cat = tag | split: '_' | first %}
+        {% unless cat == tag %}
+          {% if cat_array contains cat %}
+            {% assign is_advanced_tag = true %}
+          {% endif %}
+        {% endunless %}
+
+        {%- capture tag_text -%}
+          {{- item_icon -}}
+
+          <span class="popover-list-item-text">
+            {%- if is_advanced_tag -%}
+              {{ tag | remove_first: cat | remove_first: '_' }}
+            {%- else -%}
+              {{ tag }}
+            {%- endif -%}
+          </span>
+        {%- endcapture -%}
+
+        {% assign item_class = 'popover-list-item' %}
+        {%- if current_tags contains tag -%}
+          {% assign item_class = item_class | append: ' popover-list-item-active' %}
+        {%- endif -%}
+
+        <li class="{{ item_class }}" data-collection-filter>
+          {% if current_tags contains tag %}
+            {{ tag_text | link_to_remove_tag: tag }}
+          {% else %}
+            {{ tag_text | link_to_tag: tag }}
+          {% endif %}
+        </li>
+      {%- endunless -%}
+    {% endfor %}
+  </ul>
+</div>

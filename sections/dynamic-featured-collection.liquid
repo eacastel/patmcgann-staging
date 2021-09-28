@@ -1,0 +1,91 @@
+{% capture theme_settings %}
+  {{ settings.product_image_ratio }}
+  {{ settings.enable_product_quickshop }}
+  {{ settings.qs_show_payment_button }}
+{% endcapture %}
+
+{% assign collection = collections[section.settings.collection] %}
+{% assign products = collection.products %}
+{% assign product_limit = section.settings.product_count %}
+
+<script
+  type="application/json"
+  data-section-id="{{ section.id }}"
+  data-section-type="dynamic-featured-collection"
+>
+</script>
+
+<div class="productgrid" data-cards>
+  {% if section.settings.title != blank or section.settings.subheading != blank %}
+    <div class="grid-item-description">
+      {% if section.settings.subheading != blank %}
+        <h3 class="grid-description-subheading">
+          {{ section.settings.subheading | escape }}
+        </h3>
+      {% endif %}
+
+      {% if section.settings.title != blank %}
+        <h2 class="grid-description-heading">
+          {{ section.settings.title | escape }}
+        </h2>
+      {% endif %}
+    </div>
+  {% endif %}
+
+  {% for product in products limit: product_limit %}
+    {%
+      include 'product-item',
+      product: product,
+      is_interactive_card: true
+    %}
+  {% else %}
+    {% for i in (1..product_limit) %}
+      {%
+        include 'product-item',
+        product: false,
+        is_interactive_card: true
+      %}
+    {% endfor %}
+  {% endfor %}
+</div>
+
+{% schema %}
+{
+  "name": "Featured collection",
+  "class": "section-dynamic-featured-collection",
+  "settings": [
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Heading",
+      "default": "Featured collection"
+    },
+    {
+      "type": "text",
+      "id": "subheading",
+      "label": "Subheading"
+    },
+    {
+      "id": "collection",
+      "type": "collection",
+      "label": "Collection"
+    },
+    {
+      "type": "range",
+      "id": "product_count",
+      "label": "Product count",
+      "min": 2,
+      "max": 12,
+      "step": 1,
+      "default": 4
+    }
+  ],
+  "presets": [
+    {
+      "category": "Collection",
+      "name": "Featured collection"
+    }
+  ]
+}
+
+{% endschema %}

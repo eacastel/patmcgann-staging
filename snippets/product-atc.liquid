@@ -1,0 +1,144 @@
+{% comment %}
+  If a product has 1 variant (set variant, or default), then the mobile
+  popover will not show, and will only show the ATC button
+{% endcomment %}
+
+<div
+  class="
+    product-atc
+    {% if is_static or show_payment_button %}
+      product-atc-static
+    {% endif %}
+    {% if product.has_only_default_variant %}
+      product-atc-defaultvariant
+    {% endif %}
+  "
+  data-product-atc
+>
+  <div class="product-atc-steps">
+    <div
+      class="
+        product-atc-step
+        product-atc-step-form
+        product-atc-options-{{ product.options.size }}
+      "
+      data-popover-content="atc-step-form"
+      id="product-form-content-{{ product.id }}"
+    >
+      {% form 'product', product, class: 'product-form', data-product-form: '' %}
+        <div class="product-form-scrollable">
+          <div class="product-form-inner">
+            {% include 'product-options', type: 'both' %}
+          </div>
+
+          <div
+            class="
+              product-form-atc
+              {% if show_payment_button %}
+              product-form-atc-spb
+              {% endif %}
+            "
+            data-product-form-atc
+          >
+            {% assign submit_text = 'general.form.add_to_cart' | t %}
+            {% if show_payment_button %}
+              {%
+                include 'quantity',
+                name: 'quantity',
+                min: 1
+              %}
+
+              <div class="product-form-dcb-row">
+                <button
+                  class="product-form-dcb-submit"
+                  type="submit"
+                  aria-label="{{ submit_text }}"
+                  data-product-dcb-submit
+                  {% unless product.selected_variant.available %}
+                    disabled
+                  {% endunless %}
+                >
+                  <span
+                    class="product-form-dcb-submit-text"
+                    data-product-dcb-text
+                  >
+                    {{ submit_text }}
+                  </span>
+
+                  {% include 'icons', id: 'loader' %}
+                </button>
+
+                <div class="product-form-spb">
+                  {{ form | payment_button }}
+                </div>
+              </div>
+            {% else %}
+              {%
+                include 'quantity-submit',
+                min: 1,
+                submit_text: submit_text
+              %}
+
+              {% include 'icons', id: 'loader' %}
+            {% endif %}
+          </div>
+
+          {% if product.has_only_default_variant %}
+            <span
+              class="product-form-atc-close"
+              data-popover-toggle
+            >
+              <div class="product-form-atc-close-button">
+                {% include 'icons', id: 'close' %}
+              </div>
+            </span>
+          {% endif %}
+        </div>
+      {% endform %}
+    </div>
+
+    <div
+      class="
+        product-atc-step
+        product-atc-step-cart
+      "
+      data-popover-content="atc-step-cart"
+    >
+      {% include 'cart', cart_inline: true %}
+    </div>
+  </div>
+
+  {% unless product.has_only_default_variant %}
+    <div class="product-popover-utils popover-utils">
+      <div class="popover-utils-item">
+        <button
+          class="popover-utils-item-button"
+          type="button"
+          aria-label="{{ 'product.general.select_options' | t }}"
+          aria-controls="product-form-content-{{ product.id }}"
+          aria-expanded="false"
+          aria-haspopup="true"
+          data-popover-trigger="atc-steps"
+          data-popover-toggle
+        >
+          <span
+            class="
+              popover-utils-item-button-label
+              popover-utils-small
+              popover-utils-mobile
+              popover-utils-secondary
+            "
+          >
+            <span class="popover-utils-item-button-text">
+              {{ 'product.general.select_options' | t }}
+            </span>
+
+            <span class="popover-utils-item-button-icon">
+              {% include 'icons', id: 'close' %}
+            </span>
+          </span>
+        </button>
+      </div>
+    </div>
+  {% endunless %}
+</div>

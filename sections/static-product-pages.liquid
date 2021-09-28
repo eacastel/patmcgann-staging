@@ -1,0 +1,113 @@
+{% capture theme_settings %}
+  {{ settings.product_image_ratio }}
+{% endcapture %}
+<script
+  type="application/json"
+  data-section-id="{{ section.id }}"
+  data-section-type="static-product-pages"
+  data-section-data
+>
+  {
+    "money_format": {{ shop.money_format | strip_html | json }},
+    "product": {{ product | json }},
+    "variant_available": {{ product.selected_or_first_available_variant.available | json }},
+    "cart_redirect": {{ section.settings.enable_cart_redirect | json }},
+    "text_strings": {
+      "add_to_cart": {{ 'general.form.add_to_cart' | t | json }},
+      "quantity_text": {{ 'product.general.add_to_cart' | t: amount: '** amount **' | json }},
+      "quantity_disable": {{ 'product.general.out_of_stock' | t | json }}
+    }
+  }
+</script>
+
+<section class="product-regular">
+  {%
+    include 'product',
+    product: product,
+    show_vendor: section.settings.show_vendor,
+    is_product_modal: false
+  %}
+</section>
+
+{% schema %}
+{
+  "name": "Product pages",
+  "class": "section-static-product-pages",
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "show_payment_button",
+      "label": "Show dynamic checkout button",
+      "info": "Lets customers check out directly using a familiar payment method. [Learn more](https://help.shopify.com/manual/using-themes/change-the-layout/dynamic-checkout)",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_cart_redirect",
+      "label": "Enable cart redirection",
+      "info": "Automatically sends users to the Cart page after adding a product.",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "Product Navigation"
+    },
+	{
+      "type": "checkbox",
+      "id": "enable_product_navigation",
+      "label": "Enable Product Navigation",
+      "default": true
+    },
+    {
+      "type": "color",
+      "id": "product_nav_button_color",
+      "label": "Product Nav Button BG Color",
+      "default": "#727272"
+    },
+    {
+      "type": "color",
+      "id": "product_nav_button_txt_color",
+      "label": "Product Nav Button Text Color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "product_nav_button_hover_color",
+      "label": "Product Nav Button BG Hover Color",
+      "default": "#454545"
+    },
+	{
+      "type": "color",
+      "id": "product_nav_button_txt_hover_color",
+      "label": "Product Nav Button Text Hover Color",
+      "default": "#ffffff"
+    },
+	{
+       "type":      "select",
+       "id":        "product_navigation",
+       "label":     "Product Navigation",
+       "options": [
+         {
+           "value": "center",
+           "label": "Center"
+         },
+         {
+           "value": "space-between",
+           "label": "Space Between"
+         },
+         {
+           "value": "space-evenly",
+           "label": "Space Evenly"
+         },
+         {
+           "value": "space-around",
+           "label": "Space Around"
+         }
+       ],
+       "default":   "center",
+       "info":      "Choose the position of the navigation buttons."
+    }
+  ]
+}
+
+{% endschema %}

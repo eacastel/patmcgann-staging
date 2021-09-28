@@ -1,0 +1,92 @@
+<div
+  class="
+    cart-item-row
+    cart-item
+    {% if cart_mini %}cart-item-mini{% endif %}
+  "
+  data-cart-item="{{ item.variant.id }}"
+>
+  <div class="cart-item-column cart-item-col-product cart-item-product">
+    <div class="cart-item-column-slide" data-cart-item-column-slide>
+      <div class="cart-item-visual">
+        <figure class="cart-item-figure">
+          {% if item.image %}
+            {% assign lazy = true %}
+            {% if cart_ajax %}
+              {% assign lazy = false %}
+            {% endif %}
+            {%
+              include 'rimg',
+              class: 'cart-item-image',
+              img: item.image,
+              size: '100x',
+              alt: item.title,
+              lazy: lazy
+            %}
+          {% else %}
+            {{ 'image'| placeholder_svg_tag: 'placeholder-svg' }}
+          {% endif %}
+        </figure>
+      </div>
+
+      <div class="cart-item-details">
+        {% if item.vendor != blank %}
+          <span class="cart-item-vendor"><a href="{{ item.vendor | url_for_vendor }}">{{ item.vendor }}</a></span>
+        {% endif %}
+
+        <span class="cart-item-product-title"><a href="{{ item.variant.url }}">{{ item.product.title }}</a></span>
+
+        {% unless item.product.has_only_default_variant %}
+          <span class="cart-item-variant-title">{{ item.variant.options | join: ', ' }}</span>
+        {% endunless %}
+
+        <span class="cart-item-price-mobile money" data-cart-item-price>{{ item.price | money }}</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="cart-item-column cart-item-col-price cart-item-price">
+    <div class="cart-item-column-slide" data-cart-item-column-slide>
+      <span class="money" data-cart-item-price>{{ item.price | money }}</span>
+    </div>
+  </div>
+
+  <div class="cart-item-column cart-item-col-quantity cart-item-quantity">
+    <div class="cart-item-column-slide" data-cart-item-column-slide>
+      {% if cart_mini %}
+        {% assign quantity_id = '' %}
+      {% else %}
+        {% assign quantity_id = 'updates_' | append: item.id %}
+      {% endif %}
+
+      {%
+        include 'quantity',
+        id: quantity_id,
+        name: 'updates[]',
+        value: item.quantity
+      %}
+    </div>
+  </div>
+
+  <div class="cart-item-column cart-item-col-total cart-item-total">
+    <div class="cart-item-column-slide" data-cart-item-column-slide>
+      <span class="money" data-cart-item-total>
+        {{ item.original_line_price | money }}
+      </span>
+      <span class="cart-item-loader">
+        {% include 'icons', id: 'loader' %}
+      </span>
+    </div>
+  </div>
+
+  <div class="cart-item-column cart-item-col-remove">
+    <div class="cart-item-column-slide" data-cart-item-column-slide>
+      <button class="cart-item-remove" type="button" data-cart-item-remove>
+        {%
+          include 'icons',
+          id: 'close'
+        %}
+      </button>
+    </div>
+  </div>
+</div>

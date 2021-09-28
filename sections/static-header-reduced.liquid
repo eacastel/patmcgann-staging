@@ -1,0 +1,108 @@
+<script
+  type="application/json"
+  data-section-id="{{ section.id }}"
+  data-section-type="static-header-reduced"
+>
+</script>
+
+{% assign logo_height = section.settings.logo_height %}
+{% assign logo_width = section.settings.logo_width %}
+{% assign logo_size = logo_width | prepend: 'x' %}
+
+{%- capture header_logo -%}
+  <div class="site-header-logo">
+    <a
+      class="site-logo {% if section.settings.logo %}site-logo-has-image{% endif %}"
+      href="{{ shop.url }}"
+    >
+      {%- if section.settings.logo -%}
+        {% assign logo_alt = section.settings.logo.alt | escape %}
+        {% if logo_alt == '' %}
+          {% assign logo_alt = shop.name | escape | strip %}
+        {% endif %}
+
+        {% capture logo_style %}
+          max-width: {{ logo_width }}px;
+          max-height: {{ logo_height }}px;
+        {% endcapture %}
+
+        {%
+          include 'rimg',
+          img: section.settings.logo,
+          size: logo_size,
+          style: logo_style,
+          alt: logo_alt
+          class: 'site-logo-image'
+          lazy: false
+        %}
+      {%- else -%}
+        <span class="site-logo-text">
+          {{ shop.name }}
+        </span>
+      {%- endif -%}
+    </a>
+  </div>
+{%- endcapture -%}
+
+{%- capture classes -%}
+  site-header
+  site-header-reduced
+{%- endcapture -%}
+
+<section class="{{ classes | strip_newlines }}">
+  <div class="site-header-inner">
+    {{ header_logo }}
+
+    {% if template == 'password' %}
+      <div class="site-password-login">
+        <button
+          class="site-password-login-button"
+          data-password-modal-trigger
+        >
+          {% include 'icons', id: 'lock' %}
+          {{ 'password.general.login' | t }}
+        </button>
+      </div>
+    {% endif %}
+  </div>
+</section>
+
+<div class="site-header-mobile" aria-hidden="true">
+  {{ header_logo }}
+</div>
+
+{% schema %}
+{
+  "name": "Header",
+  "class": "site-header-wrapper",
+  "settings": [
+    {
+      "id": "logo",
+      "type": "image_picker",
+      "label": "Logo image",
+      "info": "200 x 100px .png recommended"
+    },
+    {
+      "id": "logo_height",
+      "type": "range",
+      "label": "Logo image max-height",
+      "min": 50,
+      "max": 150,
+      "step": 1,
+      "unit": "px",
+      "default": 50
+    },
+    {
+      "id": "logo_width",
+      "type": "range",
+      "label": "Logo image max-width",
+      "min": 100,
+      "max": 200,
+      "step": 1,
+      "unit": "px",
+      "default": 125
+    }
+  ]
+}
+
+{% endschema %}

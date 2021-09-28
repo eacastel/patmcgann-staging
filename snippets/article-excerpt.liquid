@@ -1,0 +1,107 @@
+{% if onboard %}
+  {% assign published_at = 'now' | date: format: 'short_day_month_year' %}
+  {% assign author_name = 'onboarding.article.title' | t %}
+  {% assign article_url = '#' %}
+  {% assign article_title = 'onboarding.article.author' | t %}
+  {% assign article_comments_count = 'onboarding.article.comments_count' | t %}
+{% else %}
+  {% assign published_at = article.published_at | date: format: 'short_day_month_year' %}
+  {% assign author_name = article.author %}
+  {% assign article_url = article.url %}
+  {% assign article_title = article.title %}
+  {% assign article_comments_count = 'article.general.comments_count' | t: count: article.comments_count %}
+{% endif %}
+
+<article class="article-excerpt">
+  {%
+    include 'patterns',
+    size: 'small',
+    class: 'article-excerpt-pattern'
+  %}
+
+  <div class="article-excerpt-border">
+    <div class="article-excerpt-inner">
+    {% if article.image or onboard %}
+      <a class="article-excerpt-image" href="{{ article_url }}" data-object-fit-item>
+        {% if onboard %}
+          {{ 'image' | placeholder_svg_tag: 'placeholder-svg' }}
+        {% else %}
+          {%
+            include 'rimg',
+            img: article.image,
+            size: '500x',
+            lazy: true
+          %}
+        {% endif %}
+      </a>
+    {% endif %}
+
+    <div class="article-excerpt-content">
+      {% if section.settings.show_date or section.settings.show_author %}
+        <aside class="article-excerpt-meta">
+          {% if section.settings.show_date %}
+            <span class="article-excerpt-meta-item article-excerpt-meta-date">
+              {{ published_at }}
+            </span>
+          {% endif %}
+
+          {% if section.settings.show_author %}
+            <span class="article-excerpt-meta-item">
+              {{ author_name }}
+            </span>
+          {% endif %}
+
+          {% if article.comments_enabled? and section.settings.show_comments_count %}
+            <span
+              class="
+                article-excerpt-meta-item
+                article-excerpt-meta-comments-count
+              "
+            >
+              {{ article_comments_count }}
+            </span>
+          {% endif %}
+        </aside>
+      {% endif %}
+
+      <h2 class="article-excerpt-title">
+        <a href="{{ article_url }}">
+          {{ article_title }}
+        </a>
+      </h2>
+
+      {%- if section.settings.show_excerpt and article.excerpt != blank or article.content != blank -%}
+        <div class="article-excerpt-text rte">
+          {%- if article.excerpt == blank -%}
+            <p>{{ article.content | strip_html | truncatewords: 40 }}</p>
+          {%- else -%}
+            {{ article.excerpt }}
+          {%- endif -%}
+        </div>
+      {%- endif -%}
+
+      {% if section.settings.show_tags and article.tags.size > 0 %}
+        <div class="article-excerpt-tags">
+          {%- for tag in article.tags -%}
+            <a
+              class="article-excerpt-tag"
+              href="{{ blog.url }}/tagged/{{ tag | handle }}"
+            >
+              {{ tag }}
+            </a>
+          {%- endfor -%}
+        </div>
+      {% endif %}
+
+      <a
+        class="
+          article-excerpt-readmore
+          article-excerpt-readmore-{{ button_style }}
+        "
+        href="{{ article_url }}">
+        {{ 'blog.general.read_now' | t }}
+      </a>
+    </div>
+  </div>
+  </div>
+</article>

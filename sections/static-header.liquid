@@ -1,0 +1,614 @@
+{% assign story_handle = false %}
+{% assign show_notification = false %}
+{% if section.settings.story_handle != blank %}
+  {% assign story_handle = section.settings.story_handle %}
+{% endif %}
+
+{% for block in section.blocks %}
+  {% if block.type == 'story' and story_handle %}
+    {% comment %}
+      In order to display nicely on mobile, a notification must include text
+    {% endcomment %}
+    {% if block.settings.title != blank or block.settings.caption != blank %}
+      {% assign show_notification = true %}
+    {% endif %}
+  {% endif %}
+{% endfor %}
+
+<script
+  type="application/json"
+  data-section-id="{{ section.id }}"
+  data-section-type="static-header"
+  data-section-data
+>
+  {
+    "settings": {
+      "navigation_layout": {{ section.settings.navigation_layout | json }},
+      "show_notification": {{ show_notification | json }},
+      "sticky_header": {{ section.settings.sticky_header | json }},
+      "story_handle": {{ story_handle | json }}
+    },
+    "currency": {
+      "enable": {{ settings.enable_currency_converter | default: false }},
+      "shop_currency": {{ shop.currency | json }},
+      "default_currency": {{ settings.currency_converter_default | default: shop.currency | json }},
+      "display_format": {{ settings.currency_display_format | json }},
+      "money_format": {{ shop[settings.currency_display_format] | strip_html | json }},
+      "money_format_no_currency": {{ shop.money_format | strip_html | json }},
+      "money_format_currency": {{ shop.money_with_currency_format | strip_html | json }}
+    }
+  }
+</script>
+
+{% assign logo_height = section.settings.logo_height %}
+{% assign logo_width = section.settings.logo_width %}
+{% assign logo_size = logo_width | prepend: 'x' %}
+
+{%- capture header_logo -%}
+  {% if template.name == 'index' %}
+    <h1 class="site-header-logo">
+  {% else %}
+    <div class="site-header-logo">
+  {% endif %}
+    <a
+      class="site-logo {% if section.settings.logo %}site-logo-has-image{% endif %}"
+      href="{{ shop.url }}"
+    >
+      {%- if section.settings.logo -%}
+        {% assign logo_alt = section.settings.logo.alt | escape %}
+        {% if logo_alt == '' %}
+          {% assign logo_alt = shop.name | escape | strip %}
+        {% endif %}
+
+        {%- capture logo_style -%}
+          max-width: {{ logo_width }}px;
+          max-height: {{ logo_height }}px;
+        {%- endcapture -%}
+
+        {%
+          include 'rimg',
+          img: section.settings.logo,
+          size: logo_size,
+          style: logo_style,
+          alt: logo_alt
+          class: 'site-logo-image'
+          lazy: false
+        %}
+      {%- else -%}
+        <span class="site-logo-text">
+          {{ shop.name }}
+        </span>
+      {%- endif -%}
+    </a>
+  {% if template.name == 'index' %}
+    </h1>
+  {% else %}
+    </div>
+  {% endif %}
+{%- endcapture -%}
+
+{%- capture classes -%}
+  site-header
+  site-navigation-layout-{{ section.settings.navigation_layout }}
+{%- endcapture -%}
+
+<section class="{{ classes | strip_newlines }}" data-header-main>
+  <div class="site-header-inner">
+    <div class="site-header-drawer-toggle" data-header-toggle-parent>
+      <button
+        class="site-header-drawer-button"
+        type="button"
+        data-header-drawer-toggle="menu"
+        aria-controls="site-header-drawer-menu"
+        aria-haspopup="true"
+        aria-label="{{ 'header.general.menu' | t }}"
+      >
+        <span class="site-header-drawer-button-icon" aria-hidden="true">
+          {%
+            include 'icons',
+            id: 'menu',
+            icon_class: 'site-header-icon-normal'
+          %}
+          {%
+            include 'icons',
+            id: 'close',
+            icon_class: 'site-header-icon-alternate'
+          %}
+        </span>
+
+        <span class="site-header-drawer-button-text">
+          {{ 'header.general.menu' | t }}
+
+          {%-
+            include 'breadcrumbs',
+            is_mobile: true
+          -%}
+        </span>
+      </button>
+    </div>
+
+    <nav
+      class="site-header-navigation"
+      data-header-navigation
+      aria-label="{{ 'general.accessibility.nav_main' | t }}"
+    >
+      {%
+        include 'navmenu',
+        depth: 1,
+        max_depth: 3,
+        menu: section.settings.main_menu
+      %}
+    </nav>
+
+    {{ header_logo }}
+
+    <div class="site-header-actions" data-header-actions>
+      {% if settings.enable_currency_converter or shop.customer_accounts_enabled %}
+        <ul class="site-header-action-utilities" data-header-utilities>
+          {% if settings.enable_currency_converter %}
+            {% assign supported_currencies = 'USD,EUR,GBP,CAD,ARS,AUD,BBD,BDT,BSD,BHD,BRL,BOB,BND,BGN,MMK,KYD,CLP,CNY,COP,CRC,HRK,CZK,DKK,DOP,XCD,EGP,XPF,FJD,GHS,GTQ,GYD,GEL,HKD,HUF,ISK,INR,IDR,NIS,JMD,JPY,JOD,KZT,KES,KWD,LVL,LTL,MXN,MYR,MUR,MDL,MAD,MNT,MZN,ANG,NZD,NGN,NOK,OMR,PKR,PYG,PEN,PHP,PLN,QAR,RON,RUB,SAR,RSD,SCR,SGD,SYP,ZAR,KRW,LKR,SEK,CHF,TWD,THB,TZS,TTD,TRY,UAH,AED,UYU,VEB,VND,ZMK' %}
+            {% assign store_currencies = settings.currency_converter_currencies | split: ' ' %}
+
+            {%- capture currency_options -%}
+              <option value="{{ shop.currency }}" selected="selected">{{ shop.currency }}</option>
+              {% for code in store_currencies %}
+                {% if code != shop.currency and supported_currencies contains code %}
+                  <option value="{{ code }}">{{ code }}</option>
+                {% endif %}
+              {% endfor %}
+            {%- endcapture %}
+            {% assign currency_label = 'header.converter.label' | t %}
+
+            <li
+              class="site-header-action-utility-item site-header-currency"
+              data-header-currency-converter
+            >
+              {%
+                include 'form-elements',
+                type: 'select',
+                aria_label: currency_label,
+                name: 'currencies',
+                value: currency_options,
+              %}
+            </li>
+          {% endif %}
+
+          {% if shop.customer_accounts_enabled %}
+            <li class="site-header-action-utility-item site-header-accounts">
+              <a
+                class="site-header-utility-link"
+                {% unless customer %}
+                  href="/account/login"
+                {% else %}
+                  href="#"
+                  data-header-drawer-toggle="account"
+                  aria-controls="site-header-drawer-account"
+                  aria-haspopup="true"
+                {% endunless %}
+              >
+                <span class="site-header-utility-icon" aria-hidden="true">
+                  {%
+                    include 'icons',
+                    id: 'account',
+                    icon_class: 'site-header-icon-normal'
+                  %}
+                  {%
+                    include 'icons',
+                    id: 'close',
+                    icon_class: 'site-header-icon-alternate'
+                  %}
+                </span>
+
+                <span class="site-header-utility-text">
+                  {{ 'header.account.title_generic' | t }}
+                </span>
+              </a>
+            </li>
+          {% endif %}
+        </ul>
+      {% endif %}
+      
+      
+         {% comment %}
+     //**  Hans edit start  **//
+     <ul class="site-header-action-links">
+     <li class="site-header-action-item" data-header-toggle-parent>
+          <a
+            class="site-header-action-link"
+            href="https://www.1stdibs.com/dealers/pat-mcgann/" target="blank_"
+       		 > 
+           <span class="site-header-action-text">
+                {{ '1stdibs' }}
+              </span>
+          </a>
+        </li>
+      //** Hans edit end **//
+       
+       {% endcomment %}
+      
+      
+
+      
+        {% if story_handle %}
+          <li class="site-header-action-item is-disabled-toggle" data-header-toggle-parent>
+            <a
+              class="site-header-action-link"
+              href="#"
+              data-header-drawer-toggle="story"
+              aria-controls="site-header-drawer-story"
+              aria-haspopup="true"
+            >
+              <span class="site-header-action-icon" aria-hidden="true">
+                {%
+                  include 'icons',
+                  id: 'story',
+                  icon_class: 'site-header-icon-normal'
+                %}
+                {%
+                  include 'icons',
+                  id: 'close',
+                  icon_class: 'site-header-icon-alternate'
+                %}
+              </span>
+
+              <span class="site-header-action-text">
+                {{ 'header.action_links.story' | t }}
+              </span>
+            </a>
+          </li>
+        {% endif %}
+
+        <li class="site-header-action-item" data-header-toggle-parent>
+          <a
+            class="site-header-action-link"
+            href="/cart"
+            data-header-drawer-toggle="cart"
+            aria-controls="site-header-drawer-cart"
+            aria-haspopup="true"
+          >
+            <span class="site-header-action-icon" aria-hidden="true">
+              {%
+                include 'icons',
+                id: 'cart',
+                icon_class: 'site-header-icon-normal'
+              %}
+              {%
+                include 'icons',
+                id: 'close',
+                icon_class: 'site-header-icon-alternate'
+              %}
+            </span>
+
+            <span class="site-header-action-text">
+              {{ 'header.action_links.cart' | t }}
+            </span>
+          </a>
+        </li>
+        <li class="site-header-action-item" data-header-toggle-parent>
+          <a
+            class="site-header-action-link"
+            href="/search"
+            data-header-drawer-toggle="search"
+            aria-controls="site-header-drawer-search"
+            aria-haspopup="true"
+          >
+            <span class="site-header-action-icon" aria-hidden="true">
+              {%
+                include 'icons',
+                id: 'search',
+                icon_class: 'site-header-icon-normal'
+              %}
+              {%
+                include 'icons',
+                id: 'close',
+                icon_class: 'site-header-icon-alternate'
+              %}
+            </span>
+
+            <span class="site-header-action-text">
+              {{ 'header.action_links.search' | t }}
+            </span>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  {% comment %}Header Drawers{% endcomment %}
+  <div
+    class="site-header-drawer-menu site-header-drawer"
+    id="site-header-drawer-menu"
+    tabindex="0"
+    data-header-drawer="menu"
+    aria-hidden="true"
+  >
+    <div class="site-header-drawer-content">
+      <div class="site-header-drawer-navigation" data-header-drawer-navigation></div>
+
+      {% if settings.enable_currency_converter or shop.customer_accounts_enabled %}
+        <ul class="navmenu site-header-drawer-utilities">
+          {% if settings.enable_currency_converter %}
+            <li
+              class="navmenu-item site-header-currency"
+              data-header-drawer-currency-converter
+            ></li>
+          {% endif %}
+
+          {% if shop.customer_accounts_enabled %}
+            <li class="navmenu-item {% if customer %}navmenu-item-has-submenu{% endif %}">
+              {% unless customer %}
+                <a class="navmenu-link navmenu-link-depth-1" href="/account/login">
+                  {{ 'header.account.login' | t }}
+                </a>
+              {% else %}
+                <a
+                  class="navmenu-link navmenu-link-depth-1"
+                  href="#"
+                  data-navmenu-trigger
+                  aria-expanded="false"
+                >
+                  {{ 'header.account.title_generic' | t }}
+
+                  <span class="navmenu-icon navmenu-icon-depth-1">
+                    {%-
+                      include 'icons',
+                      id: 'plus',
+                      icon_class: 'navmenu-icon-plus'
+                    -%}
+                    {%-
+                      include 'icons',
+                      id: 'minus',
+                      icon_class: 'navmenu-icon-minus'
+                    -%}
+                  </span>
+                </a>
+
+                <ul class="navmenu navmenu-depth-2 navmenu-submenu" data-navmenu-submenu>
+                  <li class="navmenu-item">
+                    <a class="navmenu-link navmenu-link-depth-2" href="/account">
+                      {{ 'header.account.title_personal' | t }}
+                    </a>
+                  </li>
+
+                  <li class="navmenu-item">
+                    <a class="navmenu-link navmenu-link-depth-2" href="/account/logout">
+                      {{ 'header.account.logout' | t }}
+                    </a>
+                  </li>
+                </ul>
+              {% endunless %}
+            </li>
+          {% endif %}
+        </ul>
+      {% endif %}
+
+    </div>
+  </div>
+
+  {% for block in section.blocks %}
+    {% if show_notification %}
+      <div
+        class="
+          site-header-drawer-notification
+          site-header-drawer
+          {% if block.settings.image %}
+            story-notification-has-image
+          {% endif %}
+        "
+        id="site-header-drawer-notification"
+        data-header-drawer="notification"
+        aria-hidden="true"
+        {{ block.shopify_attributes }}
+      >
+        <div class="story-notification-inner">
+          <button
+            class="story-notification-dismiss"
+            type="button"
+            data-notification-dismiss
+          >
+            {%
+              include 'icons',
+              id: 'close'
+            %}
+          </button>
+
+          {% if block.settings.image %}
+            <div class="story-notification-image">
+              {%
+                include 'rimg',
+                img: block.settings.image,
+                size: '84x',
+                lazy: false
+              %}
+            </div>
+          {% endif %}
+
+          <div class="story-notification-content">
+            {% if block.settings.title != blank %}
+              <span class="story-notification-title">
+                {{ block.settings.title | escape }}
+              </span>
+            {% endif %}
+
+            {% if block.settings.caption != blank %}
+              <div class="story-notification-caption rte">
+                {{ block.settings.caption }}
+              </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    {% endif %}
+  {% endfor %}
+
+  {% if shop.customer_accounts_enabled and customer %}
+    <div
+      class="site-header-drawer-account site-header-drawer"
+      id="site-header-drawer-account"
+      tabindex="0"
+      data-header-drawer="account"
+      aria-hidden="true"
+    >
+      <ul>
+        <li>
+          <a href="/account">
+            {{ 'header.account.title_personal' | t }}
+          </a>
+        </li>
+
+        <li>
+          <a href="/account/logout">
+            {{ 'header.account.logout' | t }}
+          </a>
+        </li>
+      </ul>
+    </div>
+  {% endif %}
+
+  {% if story_handle %}
+    <div
+      class="site-header-drawer-story site-header-drawer"
+      id="site-header-drawer-story"
+      tabindex="0"
+      data-header-drawer="story"
+      aria-hidden="true"
+    >
+    </div>
+  {% endif %}
+
+  <div
+    class="site-header-drawer-cart site-header-drawer"
+    id="site-header-drawer-cart"
+    tabindex="0"
+    data-header-drawer="cart"
+    aria-hidden="true"
+  >
+    {% include 'cart', cart_mini: true %}
+  </div>
+
+  <div
+    class="site-header-drawer-search site-header-drawer"
+    id="site-header-drawer-search"
+    tabindex="0"
+    data-header-drawer="search"
+    aria-hidden="true"
+  >
+    {%
+      include 'search-form',
+      class: 'site-header-search',
+      search_attr: 'header-search'
+    %}
+  </div>
+</section>
+
+<div class="site-header-mobile" data-header-mobile aria-hidden="true">
+  {{ header_logo }}
+</div>
+
+{% schema %}
+{
+  "name": "Header",
+  "class": "site-header-wrapper",
+  "settings": [
+    {
+      "id": "sticky_header",
+      "type": "checkbox",
+      "label": "Enable sticky header",
+      "default": false
+    },
+    {
+      "id": "logo",
+      "type": "image_picker",
+      "label": "Logo image",
+      "info": "200 x 100px .png recommended"
+    },
+    {
+      "id": "logo_height",
+      "type": "range",
+      "label": "Logo image max-height",
+      "min": 100,
+      "max": 200,
+      "step": 1,
+      "unit": "px",
+      "default": 150
+    },
+    {
+      "id": "logo_width",
+      "type": "range",
+      "label": "Logo image max-width",
+      "min": 200,
+      "max": 300,
+      "step": 1,
+      "unit": "px",
+      "default": 200
+    },
+    {
+      "type": "header",
+      "content": "Navigation"
+    },
+    {
+      "id": "main_menu",
+      "type": "link_list",
+      "label": "Main menu",
+      "default": "main-menu"
+    },
+    {
+      "type": "select",
+      "id": "navigation_layout",
+      "label": "Navigation layout",
+      "options": [
+        {
+          "value": "drawer",
+          "label": "Drawer"
+        },
+        {
+          "value": "expanded",
+          "label": "Expanded"
+        }
+      ],
+      "default": "expanded",
+      "info": "When the navigation layout is set to 'Expanded,' navigation will collapse into the 'Drawer' if there is not enough space."
+    },
+    {
+      "type": "header",
+      "content": "Story"
+    },
+    {
+      "id": "story_handle",
+      "type": "page",
+      "label": "Story page",
+      "info": "Choose your Story page. This page must have \"page.story\" as the template. [Click here for more information about how to set this up](http:\/\/support.pixelunion.net\/article\/448-reachs-story-feature)."
+    }
+  ],
+  "blocks": [
+    {
+      "type": "story",
+      "name": "Story notification",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "paragraph",
+          "content": "Add some text and an image to highlight your Story."
+        },
+        {
+          "id": "image",
+          "type": "image_picker",
+          "label": "Image",
+          "info": "200 x 200px recommended"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Heading"
+        },
+        {
+          "type": "richtext",
+          "id": "caption",
+          "label": "Caption"
+        }
+      ]
+    }
+  ]
+}
+
+{% endschema %}

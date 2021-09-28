@@ -1,0 +1,132 @@
+{% assign image_size = '1400x560' %}
+
+<section
+  class="image-block {% if show_as_share %}share-block{% endif %}"
+  data-image-block
+>
+  <div class="image-block-inner">
+    <div
+      class="
+        image-block-image
+        {% unless image %}onboarding-image{% endunless%}
+        {% unless show_as_share %}image-block-image-styled{% endunless %}
+      "
+      data-object-fit-item
+      data-image-block-image
+    >
+      {% assign existing_alpha = overlay_color | color_extract: 'alpha' | round %}
+      {% if overlay_opacity != 0 and existing_alpha != 0 %}
+        {% assign overlay_alpha = overlay_opacity | times: 0.01 %}
+        <div
+          class="image-block-overlay-fill"
+          style="background-color: {{ overlay_color | color_modify: 'alpha', overlay_alpha }}"
+        >
+        </div>
+      {% endif %}
+
+      {% if image %}
+        {%
+          include 'rimg',
+          img: image,
+          size: image_size,
+          lazy: true
+        %}
+      {% else %}
+        <div class="image-block-onboarding-image">
+          {{ 'image' | placeholder_svg_tag: 'placeholder-svg' }}
+        </div>
+      {% endif %}
+    </div>
+
+    {%- capture image_block_classes %}
+      image-block-content
+      text-layout-{{ text_layout }}
+      {% if custom_color %}use-custom-color{% endif %}
+    {%- endcapture -%}
+
+    <div
+      class="{{ image_block_classes | strip_newlines }}"
+      {% if custom_color %}style="color: {{ text_color }}"{% endif %}
+      data-image-block-content
+    >
+      {% if subheading != blank %}
+        <h3 class="image-block-subheading">{{ subheading | escape }}</h3>
+      {% endif %}
+
+      {% if title != blank %}
+        <h2 class="image-block-heading">{{ title | escape }}</h2>
+      {% endif %}
+
+      {% if text != blank %}
+        <div class="image-block-text rte">
+          {{ text }}
+        </div>
+      {% endif %}
+
+      {% if link != blank and link_text != blank %}
+        <a class="image-block-button" href="{{ link }}">
+          {{ link_text | escape }}
+        </a>
+      {% endif %}
+
+      {% if show_as_share %}
+        <div class="share-block-button">
+          <div class="popover-utils-item">
+            <button
+              class="popover-utils-item-button share-block-popover-button"
+              aria-label="{{ 'general.sharing.share_button' | t | escape}}"
+              aria-controls="share-block-{{ share_id }}"
+              aria-expanded="false"
+              aria-haspopup="true"
+              data-popover-trigger="share"
+            >
+              <span class="
+                popover-utils-item-button-label
+                popover-utils-small
+                popover-utils-secondary
+              ">
+                <span class="popover-utils-item-button-text">
+                  {{ 'general.sharing.share_button' | t }}
+                </span>
+
+                <span class="popover-utils-item-button-icon">
+                  {% include 'icons', id: 'close' %}
+                </span>
+              </span>
+            </button>
+          </div>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  {% if show_as_share %}
+    {% assign social_image = blank %}
+    {% if image %}
+      {% assign social_image = image | img_url: image_size %}
+    {% endif %}
+
+    {% assign social_title = page_title %}
+    {% if title != blank %}
+      {% assign social_title = title %}
+    {% endif %}
+
+    {% assign social_url = shop.url | append: page.url %}
+
+    <div
+      class="share-popover"
+      id="share-block-{{ share_id }}"
+      data-popover-content="share"
+      aria-hidden="true"
+    >
+      <div class="share-popover-inner">
+        {%
+          include 'share-buttons',
+          social_image: social_image,
+          social_title: social_title,
+          social_url: social_url
+        %}
+      </div>
+    </div>
+  {% endif %}
+</section>

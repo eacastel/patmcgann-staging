@@ -1,0 +1,249 @@
+<section class="site-footer">
+
+  {% if section.blocks.size > 0 %}
+    <div class="site-footer-item">
+      <div class="site-footer-inner">
+        <div class="site-footer-blocks site-footer-blocks-{{ section.blocks.size }}">
+          {% for block in section.blocks %}
+            {%- capture block_class -%}
+              site-footer-block
+              site-footer-block-{{ block.type | replace: '_', '-' }}
+            {%- endcapture -%}
+
+            <div class="{{ block_class | strip_newlines }}" {{ block.shopify_attributes }}>
+              {% case block.type %}
+                {% when 'menu' %}
+                  {% assign menu_list = block.settings.menu %}
+                  <h2 class="site-footer-block-title">
+                    {{ linklists[menu_list].title | escape }} 
+                  </h2>
+                  {%
+                    include 'menu-list',
+                    menu: menu_list,
+                    menu_class: 'site-footer-block-menu-list'
+                  %}
+                {% when 'social_media' %}
+                  {% assign social_media = 'Facebook|Twitter|Google+|Pinterest|Instagram|Tumblr|Vimeo|YouTube|RSS|Email' %}
+                  {% assign social_media_accounts = social_media | downcase | replace: '+', '' | split: '|' %}
+                  {% assign social_media_titles = social_media | split: '|' %}
+                  {% assign has_social_icons = false %}
+
+                  {% for account in social_media_accounts %}
+                    {% assign setting = 'social_' | append: account %}
+                    {% if settings[setting] != blank %}
+                      {% assign has_social_icons = true %}
+                      {% break %}
+                    {% endif %}
+                  {% endfor %}
+
+                  {% if has_social_icons != blank %}
+                    <h2 class="site-footer-block-title">
+                      {{ 'footer.general.follow_us' | t }}
+                    </h2>
+
+                    <ul
+                      class="
+                        menu-list
+                        site-footer-social-list
+                      "
+                    >
+                      {%- for account in social_media_accounts -%}
+                        {% assign setting = 'social_' | append: account %}
+                        {% assign href = settings[setting] %}
+                        {% assign title = social_media_titles[forloop.index0] %}
+
+                        {% if account == 'email' %}
+                          {% assign href = settings.social_email | prepend: 'mailto:' %}
+                        {% endif %}
+
+                        {%- if settings[setting] != blank -%}
+                          <li class="menu-list-item">
+                            <a
+                              class="menu-list-link menu-list-social-link"
+                              href="{{ href | escape }}" target="_blank"
+                              title="{{ title }}"
+                              {% unless account == 'email' %}{% endunless %}
+                            >
+                              <span class="site-footer-social-icon">
+                                {%-
+                                  include 'icons',
+                                  id: account
+                                -%}
+                              </span>
+                              <span class="site-footer-social-text">
+                                {{ title }}
+                              </span>
+                            </a>
+                          </li>
+                        {%- endif -%}
+                      {%- endfor -%}
+                    </ul>
+                  {% endif %}
+                {% when 'newsletter' %}
+                  {% if block.settings.title != blank %}
+                    <h2 class="site-footer-block-title">
+                      {{ block.settings.title | escape }}
+                    </h2>
+                  {% endif %}
+
+                  {% if block.settings.text != blank %}
+                    <div class="site-footer-block-content rte">
+                      {{ block.settings.text }}
+                    </div>
+                  {% endif %}
+
+                  {%
+                    include 'newsletter',
+                    form_id: 'footer_newsletter',
+                  %}
+
+                {% when 'rich_text' %}
+                  {% if block.settings.title != blank %}
+                    <h2 class="site-footer-block-title">
+                      {{ block.settings.title | escape }}
+                    </h2>
+                  {% endif %}
+
+                  {% if block.settings.text != blank %}
+                    <div class="site-footer-block-content rte">
+                      {{ block.settings.text }}
+                    </div>
+                  {% endif %}
+              {% endcase %}
+            </div>
+          {% endfor %}
+        </div>
+
+        {%
+          include 'patterns',
+          size: 'large',
+          class: 'site-footer-block-pattern'
+        %}
+      </div>
+    </div>
+  {% endif %}
+
+  <div class="site-footer-item">
+    <div class="site-footer-inner">
+      {%
+        include 'patterns',
+        size: 'large',
+        class: 'site-footer-credits-pattern'
+      %}
+
+      <div class="site-footer-left">
+        <p class="site-footer-credits">
+          {% assign year = 'now' | date: '%Y' %}
+          {{ 'footer.general.copyright_html' | t: year: year, shop_name: shop.name }}
+<!--          {{ 'footer.general.credits_html' | t }} {{ powered_by_link }}. -->
+        </p>
+      </div>
+
+      {% if section.settings.payment_icons and shop.enabled_payment_types.size > 0 %}
+        <div class="site-footer-right">
+          <ul class="payment-icons">
+            {%- for type in shop.enabled_payment_types -%}
+              <li class="payment-icons-item">
+                {{ type | payment_type_svg_tag }}
+              </li>
+            {%- endfor -%}
+          </ul>
+        </div>
+      {% endif %}
+      </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Footer",
+  "class": "site-footer-wrapper",
+  "max_blocks": 4,
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "payment_icons",
+      "label": "Show payment icons",
+      "default": false
+    }
+  ],
+  "blocks": [
+    {
+      "type": "menu",
+      "name": "Menu",
+      "limit": 2,
+      "settings": [
+        {
+          "type": "link_list",
+          "id": "menu",
+          "label": "Menu",
+          "default": "footer",
+          "info": "This menu won't show dropdown items"
+        }
+      ]
+    },
+    {
+      "type": "rich_text",
+      "name": "Rich text",
+      "limit": 2,
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Heading",
+          "default": "Rich text"
+        },
+        {
+          "type": "richtext",
+          "id": "text",
+          "label": "Text",
+          "default": "<p>Use this section to welcome customers to your store, say a bit about your brand, or share news and seasonal promotions.</p>"
+        }
+      ]
+    },
+    {
+      "type": "social_media",
+      "name": "Social media",
+      "limit": 1,
+      "settings": [
+       {
+         "type": "paragraph",
+         "content": "Social media links can be managed in your Theme settings."
+       }
+      ]
+    },
+    {
+      "type": "newsletter",
+      "name": "Newsletter",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Heading",
+          "default": "Subscribe"
+        },
+        {
+          "type": "richtext",
+          "id": "text",
+          "label": "Text",
+          "default": "<p>Invite customers to join your mailing list.</p>"
+        }
+      ]
+    }
+  ],
+  "default": {
+    "blocks": [
+      {
+        "type": "menu",
+        "settings": {}
+      },
+      {
+        "type": "newsletter",
+        "settings": {}
+      }
+    ]
+  }
+}
+
+{% endschema %}

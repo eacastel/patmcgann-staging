@@ -1,0 +1,75 @@
+{% comment %}
+
+  A quantity control, with increment and decrement buttons.
+
+  @param name (optional)
+         The quantity element's name
+
+  @param id (optional)
+         The quantity element's id
+
+  @param value (optional)
+         The current quantity. Defaults to 1.
+
+  @param min (optional)
+         The smallest number allowed.
+
+{% endcomment %}
+
+{% assign min_value = min | default: 0 %}
+{% assign val = value | default: 1 | at_least: min_value %}
+
+<div
+  class="
+    form-element-wrapper
+    form-element-wrapper-quantity
+  "
+  data-quantity
+>
+  <div
+    class="
+      form-element-quantity
+      form-element-secondary
+    "
+    data-quantity-element
+  >
+    <button
+      class="form-element-quantity-decrement"
+      type="button"
+      aria-label="{{ 'general.form.decrement' | t }}"
+      data-quantity-decrement
+    >
+      {%
+        include 'icons',
+        id: 'minus',
+        icon_class: 'form-element-quantity-icon'
+      %}
+    </button>
+
+    <input
+      class="form-element"
+      type="number"
+      {% if id != blank %}
+        id="{{ id }}"
+      {% endif %}
+      name="{% if name == blank %}quantity{% else %}{{ name }}{% endif %}"
+      min="{{ min_value | escape }}"
+      value="{{ val | escape }}"
+      aria-label="{{ 'general.form.quantity' | t }}"
+      data-quantity-input
+    >
+
+    <button
+      class="form-element-quantity-increment"
+      type="button"
+      aria-label="{{ 'general.form.increment' | t }}"
+      data-quantity-increment
+    >
+      {%
+        include 'icons',
+        id: 'plus',
+        icon_class: 'form-element-quantity-icon'
+      %}
+    </button>
+  </div>
+</div>

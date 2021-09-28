@@ -1,0 +1,19 @@
+{% comment %}
+  @param product_available {Bool}
+
+  @param on_sale {Bool}
+{% endcomment %}
+
+{%- if product_available != true -%}
+  <span
+    class="product-badge product-badge-unavailable"
+    data-badge="{{ 'product.item.badges.sold_out' | t }}"
+    aria-label="{{ 'product.item.badges.sold_out' | t }}"
+  ></span>
+{%- elsif on_sale -%}
+  <span
+    class="product-badge product-badge-onsale"
+    data-badge="{{ 'product.item.badges.sale' | t }}"
+    aria-label="{{ 'product.item.badges.sale' | t }}"
+  ></span>
+{%- endif -%}

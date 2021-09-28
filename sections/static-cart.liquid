@@ -1,0 +1,59 @@
+<script
+  type="application/json"
+  data-section-id="{{ section.id }}"
+  data-section-type="static-cart"
+  data-section-data
+>
+  {
+    "money_format": {{ shop.money_format | strip_html | json }},
+    "shipping": {
+      "postalcode": {{ 'cart.shipping.postalcode' | t | json }},
+      "submit_text": {{ 'cart.shipping.submit' | t | json }},
+      "submitting_text": {{ 'cart.shipping.submitting' | t | json }},
+      "customer_is_logged_in": {{ is_customer | default: false | json }},
+      "multiple_rates": {{ 'cart.shipping.multiple_rates' | t: number_of_rates: '*number_of_rates*', address: '*address*', rate: '*rate*' | json }},
+      "one_rate": {{ 'cart.shipping.one_rate' | t: address: '*address*' | json }},
+      "no_rates": {{ 'cart.shipping.no_rates' | t | json }},
+      "rate_value": {{ 'cart.shipping.rate_value' | t: rate_title: '*rate_title*', rate: '*rate*'  | json }}
+    }
+  }
+</script>
+
+<article class="static-cart background-alternate">
+  <header class="page-masthead">
+    <h1 class="page-title">
+      {{ 'cart.general.heading' | t }}
+    </h1>
+  </header>
+
+  <div class="static-cart-container">
+    <div class='static-cart-wrapper'>
+      {% include 'cart' %}
+    </div>
+  </div>
+</article>
+
+{% schema %}
+{
+  "name": "Cart page",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Shipping calculator"
+    },
+    {
+      "type": "checkbox",
+      "id": "shipping_calc_enable",
+      "label": "Enable shipping calculator",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "shipping_calc_default_country",
+      "label": "Default country",
+      "default": "Canada"
+    }
+  ]
+}
+
+{% endschema %}

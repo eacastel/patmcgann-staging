@@ -1,0 +1,39 @@
+{% comment %}
+  @param class {String}
+         Optional class to add to search form
+
+  @param search_attr {String}
+{% endcomment %}
+
+<form
+  class="search-form-inline {% if class %}{{ class }}{% endif %}"
+  action="/search"
+  method="get"
+>
+  {% assign search_placeholder = 'search.form.placeholder' | t | escape %}
+  {% assign search_aria_label = 'search.form.aria_label' | t | escape %}
+  {% if search.performed %}
+    {% assign search_value = search.terms | escape %}
+  {% endif %}
+
+  {% unless settings.enable_search_articles_pages %}
+    <input type="hidden" name="type" value="product">
+  {% endunless %}
+
+  {%
+    include 'form-elements',
+    name: 'q',
+    type: 'text'
+    value: search_value,
+    aria_label: search_aria_label,
+    placeholder: search_placeholder,
+    data_attr: search_attr
+  %}
+
+  <div class="search-form-inline-icon">
+    {%
+      include 'icons',
+      id: 'search'
+    %}
+  </div>
+</form>

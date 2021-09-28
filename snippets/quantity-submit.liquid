@@ -1,0 +1,78 @@
+{% comment %}
+
+  A quantity control, with increment and decrement buttons.
+
+  @param value (optional)
+         The current quantity. Defaults to 1.
+
+  @param min (optional)
+         The smallest number allowed.
+
+  @param submit_text (optional)
+         Override submit button text (for non-js first functionality)
+
+{% endcomment %}
+
+{% assign min_value = min | default: 1 %}
+{% assign val = value | default: 1 | at_least: min_value %}
+
+{% assign submit_button_text = 'general.form.submit' | t %}
+{% if submit_text != blank %}
+  {% assign submit_button_text = submit_text %}
+{% endif %}
+
+<div
+  class="
+    form-element-wrapper
+    form-element-wrapper-quantity
+  "
+  data-quantity
+>
+  <div
+    class="form-element-quantity-submit"
+    data-quantity-element
+  >
+    <button
+      class="form-element-quantity-decrement"
+      type="button"
+      aria-label="{{ 'general.form.decrement' | t }}"
+      data-quantity-decrement
+    >
+      {%
+        include 'icons',
+        id: 'minus',
+        icon_class: 'form-element-quantity-icon'
+      %}
+    </button>
+
+    <input
+      class="form-element"
+      type="number"
+      name="quantity"
+      min="{{ min_value | escape }}"
+      value="{{ val | escape }}"
+      aria-label="{{ 'general.form.quantity' | t }}"
+      data-quantity-input
+    >
+
+    <input
+      class="form-element-submit-button"
+      type="submit"
+      value="{{ submit_button_text }}"
+      data-quantity-submit
+    >
+
+    <button
+      class="form-element-quantity-increment"
+      type="button"
+      aria-label="{{ 'general.form.increment' | t }}"
+      data-quantity-increment
+    >
+      {%
+        include 'icons',
+        id: 'plus',
+        icon_class: 'form-element-quantity-icon'
+      %}
+    </button>
+  </div>
+</div>

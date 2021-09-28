@@ -1,0 +1,153 @@
+{% comment %}
+  @param alt {Bool}
+    Determines if form input uses alternate stylings (secondary buttons)
+
+  @param aria_label {String}
+    `aria-label` for use when no label, or readable text
+
+  @param embellished {Bool}
+    Determines if form input should be embellished
+
+  @param disabled {Bool}
+
+  @param label {String}
+
+  @param name {String}
+
+  @param placeholder {String}
+
+  @param required {Bool}
+
+  @param type {String}
+    Type of form element
+      - oneOf [checkbox, text, textarea, select, button, submit]
+
+  @param data_attr {String}
+    Add data attribute to form element
+
+  @param data_val {String}
+    Add data value to data attribute
+{% endcomment %}
+
+{%- capture form_label -%}
+  {% if label %}
+    <label
+      class="form-element-label"
+      {% if label_id %}id="{{ label_id }}"{% endif %}
+      {% if id %}for="{{ id }}"{% endif %}>
+      {{ label }}
+    </label>
+  {% endif %}
+{%- endcapture -%}
+
+{% capture element %}
+  {% if type == "checkbox" %}
+    <input
+      {% if id %}id="{{ id }}"{% endif %}
+      class="form-element checkbox"
+      type="{{ type }}"
+      {% if name %}name="{{ name }}"{% endif %}
+      {% if placeholder %}placeholder="{{ placeholder }}"{% endif %}
+      {% if required %}required{% endif %}
+      {% if disabled %}disabled{% endif %}
+      {% if aria_label %}aria-label="{{ aria_label }}"{% endif %}
+      {% if data_attr %}
+        data-{{ data_attr }}{% if data_val != blank %}="{{ data_val }}"{% endif %}
+      {% endif %}
+    />
+
+    <span class="form-element-icon">
+      {% include 'icons', id: 'check' %}
+    </span>
+
+    {{ form_label }}
+  {% elsif type == 'text' or type == 'password' or type == 'email' %}
+    <input
+      {% if id %}id="{{ id }}"{% endif %}
+      class="form-element input"
+      type="{{ type }}"
+      {% if name %}name="{{ name }}"{% endif %}
+      {% if placeholder %}placeholder="{{ placeholder }}"{% endif %}
+      {% if value %}value="{{ value }}"{% endif %}
+      {% if required %}required{% endif %}
+      {% if disabled %}disabled{% endif %}
+      {% if aria_label %}aria-label="{{ aria_label }}"{% endif %}
+      {% if data_attr %}
+        data-{{ data_attr }}{% if data_val != blank %}="{{ data_val }}"{% endif %}
+      {% endif %}
+    />
+  {% elsif type == 'textarea' %}
+    <textarea
+      {% if id %}id="{{ id }}"{% endif %}
+      class="form-element input"
+      {% if name %}name="{{ name }}"{% endif %}
+      {% if placeholder %}placeholder="{{ placeholder }}"{% endif %}
+      {% if required %}required{% endif %}
+      {% if disabled %}disabled{% endif %}
+      {% if aria_label %}aria-label="{{ aria_label }}"{% endif %}
+      {% if data_attr %}
+        data-{{ data_attr }}{% if data_val != blank %}="{{ data_val }}"{% endif %}
+      {% endif %}
+    >{%- if value -%}{{ value }}{%- endif -%}</textarea>
+  {% elsif type == 'select' %}
+    <select
+      {% if id %}id="{{ id }}"{% endif %}
+      class="form-element select"
+      {% if name %}name="{{ name }}"{% endif %}
+      {% if placeholder %}placeholder="{{ placeholder }}"{% endif %}
+      {% if required %}required{% endif %}
+      {% if disabled %}disabled{% endif %}
+      {% if aria_label %}aria-label="{{ aria_label }}"{% endif %}
+      {% if data_attr %}
+        data-{{ data_attr }}{% if data_val != blank %}="{{ data_val }}"{% endif %}
+      {% endif %}
+    >
+      {{ value }}
+    </select>
+
+    <span class="form-element-icon">
+      {% include 'icons', id: 'chevron' %}
+    </span>
+  {% elsif type == 'button' or type == 'submit' %}
+    <button
+      {% if id %}id="{{ id }}"{% endif %}
+      class="form-element button"
+      type="{% if type == 'submit' %}submit{% else %}button{% endif %}"
+      {% if name %}name="{{ name }}"{% endif %}
+      {% if placeholder %}placeholder="{{ placeholder }}"{% endif %}
+      {% if required %}required{% endif %}
+      {% if disabled %}disabled{% endif %}
+      {% if aria_label %}aria-label="{{ aria_label }}"{% endif %}
+      {% if data_attr %}
+        data-{{ data_attr }}{% if data_val != blank %}="{{ data_val }}"{% endif %}
+      {% endif %}
+    >
+      {{ value }}
+    </button>
+  {% endif %}
+{% endcapture %}
+
+{% capture element_wrapper %}
+  {% if element != blank %}
+    <div
+      class="
+        form-element-{{ type }}
+        {% if secondary %}form-element-secondary{% endif %}
+        {% if error %}form-element-error{% endif %}
+        {% if disabled %}form-element-disabled{% endif %}
+      "
+    >
+      {{ element }}
+    </div>
+  {% endif %}
+{% endcapture %}
+
+{% if element_wrapper != blank %}
+  <div class="form-element-wrapper form-element-wrapper-{{ type }}">
+    {% if type != "checkbox" %}
+      {{ form_label }}
+    {% endif %}
+
+    {{ element_wrapper }}
+  </div>
+{% endif %}

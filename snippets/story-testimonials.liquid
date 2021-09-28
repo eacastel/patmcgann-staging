@@ -1,0 +1,84 @@
+{% assign name_base = 'testimonial_(x)_name' %}
+{% assign link_base = 'testimonial_(x)_link' %}
+{% assign caption_base = 'testimonial_(x)_caption' %}
+{% assign style_base = 'testimonial_(x)_style' %}
+{% assign product_base = 'testimonial_(x)_product_handle' %}
+
+{% assign max_testimonials = 3 %}
+{% assign testimonial_count = 0 %}
+
+{% comment %}
+  Loop over testimonials, look for title and caption. If neither of those
+  have content, then the testimonial is assumed empty
+{% endcomment %}
+{% for i in (1..max_testimonials) %}
+  {% assign name_setting = name_base | replace: '(x)', i %}
+  {% assign caption_setting = caption_base | replace: '(x)', i %}
+
+  {% if block.settings[name_setting] != blank or block.settings[caption_setting] != blank %}
+    {% assign testimonial_count = testimonial_count | plus: 1 %}
+  {% endif %}
+{% endfor %}
+
+{% comment %}
+  If there are no testimonials that qualify as valid, set to onboarding state
+{% endcomment %}
+{% if testimonial_count == 0 %}
+  {% assign onboard = true %}
+{% endif %}
+<section
+  class="
+    testimonials
+    {{ background_style }}
+  "
+>
+  {% if title != blank or subheading != blank %}
+    <div class="testimonials-header">
+      {% if subheading != blank %}
+        <h3 class="testimonials-subheading">
+          {{ subheading | escape }}
+        </h3>
+      {% endif %}
+
+      {% if title != blank %}
+        <h2 class="testimonials-heading">
+          {{ title | escape }}
+        </h2>
+      {% endif %}
+    </div>
+  {% endif %}
+
+  <div
+    class="testimonials-container"
+    {% if testimonial_count > 1 or onboard %}
+      data-testimonials
+    {% endif %}
+  >
+    {% for i in (1..max_testimonials) %}
+      {% unless onboard %}
+        {% assign name_setting = name_base | replace: '(x)', i %}
+        {% assign link_setting = link_base | replace: '(x)', i %}
+        {% assign caption_setting = caption_base | replace: '(x)', i %}
+        {% assign style_setting = style_base | replace: '(x)', i %}
+        {% assign product_setting = product_base | replace: '(x)', i %}
+
+        {% comment %}Minimum of title, or caption is required{% endcomment %}
+        {% if block.settings[title_setting] != blank or block.settings[caption_setting] != blank %}
+          {%
+            include 'testimonial',
+            name: block.settings[name_setting],
+            link: block.settings[link_setting],
+            caption: block.settings[caption_setting],
+            style: block.settings[style_setting],
+            product: all_products[block.settings[product_setting]]
+          %}
+        {% endif %}
+      {% else %}
+        {%
+          include 'testimonial',
+          onboard: true
+        %}
+      {% endunless %}
+    {% endfor %}
+  </div>
+</section>

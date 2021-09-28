@@ -1,0 +1,34 @@
+<article class="features-item">
+  {%
+    include 'patterns',
+    size: 'small',
+    class: 'features-item-pattern'
+  %}
+
+  <div class="features-item-border">
+    <div class="features-item-inner">
+      {% if fa_icon != blank %}
+        <div class="features-item-icon" aria-hidden="true">
+          {%
+            include 'icons',
+            id: 'font_awesome',
+            fa_icon: fa_icon,
+            title: heading
+          %}
+        </div>
+      {% endif %}
+
+      {% if heading != blank %}
+        <h2 class="features-item-heading">
+          {{ heading | escape }}
+        </h2>
+      {% endif %}
+
+      {% if caption != blank %}
+        <div class="features-item-caption rte">
+          {{ caption  }}
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</article>

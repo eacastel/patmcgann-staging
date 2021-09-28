@@ -1,0 +1,134 @@
+{% capture theme_settings %}
+  {{ settings.product_image_ratio }}
+{% endcapture %}
+
+<script
+  type="application/json"
+  data-section-id="{{ section.id }}"
+  data-section-type="dynamic-testimonials"
+>
+</script>
+
+{% include 'testimonials' %}
+
+{% schema %}
+{
+  "name": "Testimonials",
+  "class": "section-dynamic-testimonials",
+  "settings": [
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Heading",
+      "default": "Testimonials"
+    },
+    {
+      "type": "text",
+      "id": "subheading",
+      "label": "Subheading"
+    },
+    {
+      "type": "select",
+      "id": "background",
+      "label": "Background",
+      "options": [
+        {
+          "value": "background-default",
+          "label": "Default"
+        },
+        {
+          "value": "background-alternate",
+          "label": "Alternate"
+        }
+      ],
+      "default": "background-default"
+    }
+  ],
+  "max_blocks": 3,
+  "blocks": [
+    {
+      "type": "testimonial",
+      "name": "Testimonial",
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Name",
+          "default": "Name"
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Link"
+        },
+        {
+          "type": "textarea",
+          "id": "caption",
+          "label": "Caption",
+          "default": "Showcase up to three testimonials to build trust with potential customers."
+        },
+        {
+          "type": "select",
+          "id": "style",
+          "label": "Style",
+          "options": [
+            {
+              "value": "standard",
+              "label": "Standard"
+            },
+            {
+              "value": "facebook",
+              "label": "Facebook"
+            },
+            {
+              "value": "twitter",
+              "label": "Twitter"
+            }
+          ],
+          "default": "standard"
+        },
+        {
+          "type": "product",
+          "id": "product_handle",
+          "label": "Product"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "category": "Text",
+      "name": "Testimonials",
+      "settings": {
+        "title": "Testimonials"
+      },
+      "blocks": [
+        {
+          "type": "testimonial",
+          "settings": {
+            "title": "@username",
+            "style": "twitter",
+            "caption": "Showcase up to three testimonials to build trust with potential customers."
+          }
+        },
+        {
+          "type": "testimonial",
+          "settings": {
+            "title": "Name",
+            "style": "facebook",
+            "caption": "Showcase up to three testimonials to build trust with potential customers."
+          }
+        },
+        {
+          "type": "testimonial",
+          "settings": {
+            "title": "Name",
+            "caption": "Showcase up to three testimonials to build trust with potential customers."
+          }
+        }
+      ]
+    }
+  ]
+}
+
+{% endschema %}

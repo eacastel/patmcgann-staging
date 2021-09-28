@@ -1,0 +1,226 @@
+<article
+  class="site-page background-alternate site-account-addresses"
+  data-account-template="addresses"
+>
+  <header class="page-masthead">
+    <h1 class="page-title">
+      {{ 'account.addresses.title' | t }}
+    </h1>
+    <div class="account-actions">
+      <a class="account-return" href="/account">
+        {%
+          include 'icons',
+          id: 'chevron'
+        %}
+        <span>{{ 'account.general.account_details' | t }}</span>
+      </a>
+    </div>
+  </header>
+
+  <div class="page-container">
+    <div class="page-content rte">
+      <div class="account-addresses">
+        <div class="account-addresses-new">
+          <h2 class="account-addresses-new-title">
+            {{ 'account.addresses.new_title' | t }}
+          </h2>
+
+          {% assign address = customer.new_address %}
+          {% assign address_id = 'customer-addr-' | append: address.id | append: '-' %}
+
+          <div class="account-addresses-form account-addresses-new-form" data-address-id="{{ address.id }}">
+            {% form 'customer_address', address %}
+              {% if form.errors %}
+                <div class="account-addresses-form-errors">
+                  {{ form.errors | default_errors }}
+                </div>
+              {% endif %}
+
+              {% assign account_addresses_first_name_label = 'account.addresses.first_name' | t %}
+              {% assign account_addresses_first_name_id = address_id | append: 'firstname' %}
+              {%
+                include 'form-elements',
+                id: account_addresses_first_name_id,
+                name: 'address[first_name]',
+                type: 'text',
+                value: form.first_name,
+                label: account_addresses_first_name_label
+              %}
+
+              {% assign account_addresses_last_name_label = 'account.addresses.last_name' | t %}
+              {% assign account_addresses_last_name_id = address_id | append: 'lastname' %}
+              {%
+                include 'form-elements',
+                id: account_addresses_last_name_id,
+                name: 'address[last_name]',
+                type: 'text',
+                value: form.last_name,
+                label: account_addresses_last_name_label
+              %}
+
+              {% assign account_addresses_company_label = 'account.addresses.company' | t %}
+              {% assign account_addresses_company_id = address_id | append: 'company' %}
+              {%
+                include 'form-elements',
+                id: account_addresses_company_id,
+                name: 'address[company]',
+                type: 'text',
+                value: form.company,
+                label: account_addresses_company_label
+              %}
+
+              {% assign account_addresses_address1_label = 'account.addresses.address1' | t %}
+              {% assign account_addresses_address1_id = address_id | append: 'address1' %}
+              {%
+                include 'form-elements',
+                id: account_addresses_address1_id,
+                name: 'address[address1]',
+                type: 'text',
+                value: form.address1,
+                label: account_addresses_address1_label
+              %}
+
+              {% assign account_addresses_address2_label = 'account.addresses.address2' | t %}
+              {% assign account_addresses_address2_id = address_id | append: 'address2' %}
+              {%
+                include 'form-elements',
+                id: account_addresses_address2_id,
+                name: 'address[address2]',
+                type: 'text',
+                value: form.address2,
+                label: account_addresses_address2_label
+              %}
+
+              {% assign account_addresses_city_label = 'account.addresses.city' | t %}
+              {% assign account_addresses_city_id = address_id | append: 'city' %}
+              {%
+                include 'form-elements',
+                id: account_addresses_city_id,
+                name: 'address[city]',
+                type: 'text',
+                value: form.city,
+                label: account_addresses_city_label
+              %}
+
+              {% assign account_addresses_country_label = 'account.addresses.country' | t %}
+              {% assign account_addresses_country_id = address_id | append: 'country' %}
+              {% assign account_addresses_country_error = false %}
+              {% if form.errors contains 'country' %}
+                {% assign account_addresses_country_error = true %}
+              {% endif %}
+              {%
+                include 'form-elements',
+                id: account_addresses_country_id,
+                name: 'address[country]',
+                type: 'select',
+                label: account_addresses_country_label,
+                value: country_option_tags,
+                data_attr: 'default',
+                data_val: form.country,
+                error: account_addresses_country_error
+              %}
+
+              {% assign account_addresses_province_label = 'account.addresses.province' | t %}
+              {% assign account_addresses_province_id = address_id | append: 'province' %}
+              <div id="{{ account_addresses_province_id }}-wrapper">
+                {%
+                  include 'form-elements',
+                  id: account_addresses_province_id,
+                  name: 'address[province]',
+                  type: 'select',
+                  label: account_addresses_province_label,
+                  data_attr: 'default',
+                  data_val: form.province
+                %}
+              </div>
+
+              {% assign account_addresses_zip_label = 'account.addresses.zip' | t %}
+              {% assign account_addresses_zip_id = address_id | append: 'zip' %}
+              {%
+                include 'form-elements',
+                id: account_addresses_zip_id,
+                name: 'address[zip]',
+                type: 'text',
+                label: account_addresses_zip_label,
+                value: form.zip
+              %}
+
+              {% assign account_addresses_phone_label = 'account.addresses.phone' | t %}
+              {% assign account_addresses_phone_id = address_id | append: 'phone' %}
+              {%
+                include 'form-elements',
+                id: account_addresses_phone_id,
+                name: 'address[phone]',
+                type: 'text',
+                label: account_addresses_phone_label,
+                value: form.phone
+              %}
+
+              {% assign account_addresses_default_label = 'account.addresses.default' | t %}
+              {% assign account_addresses_default_id = 'address_default_address_' | append: address.id %}
+              {%
+                include 'form-elements',
+                id: account_addresses_default_id,
+                name: 'address[default]',
+                type: 'checkbox',
+                label: account_addresses_default_label
+              %}
+
+              {% assign account_addresses_submit_value = 'account.addresses.submit' | t %}
+              {%
+                include 'form-elements',
+                secondary: true,
+                type: 'submit'
+                value: account_addresses_submit_value
+              %}
+            {% endform %}
+          </div>
+        </div>
+
+        {% if customer.addresses.size > 0 %}
+          {% paginate customer.addresses by 4 %}
+            <div class="account-addresses-list">
+              <h2 class="account-addresses-list-title">
+                {{ 'account.addresses.title' | t }}
+              </h2>
+
+              {% for address in customer.addresses %}
+                <div class="account-address">
+                  <div class="account-address-details">
+                    {{ address | format_address }}
+                  </div>
+
+                  {% if address == customer.default_address %}
+                    <span class="account-address-default">
+                      {{ 'account.addresses.default_address' | t }}
+                    </span>
+                  {% endif %}
+
+                  <div class="account-addresses-edit-delete-links">
+                    <a
+                      class="account-addresses-edit-link"
+                      href="/account/addresses?view=edit&amp;page={{ paginate.current_offset | plus: forloop.index }}"
+                      data-edit-address="{{ address.id }}"
+                    >
+                      {{ 'account.addresses.edit' | t }}
+                    </a>
+
+                    {{ 'account.addresses.delete' | t | delete_customer_address_link: address.id }}
+                  </div>
+                </div>
+              {% endfor %}
+
+              {% include 'pagination' %}
+            </div>
+          {% endpaginate %}
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  {%
+    include 'patterns',
+    size: 'large',
+    class: 'page-content-pattern'
+  %}
+</article>

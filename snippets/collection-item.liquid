@@ -1,0 +1,136 @@
+{%- comment -%}
+  A shared collection item component
+
+  @param collection
+    The collection to display
+
+  @param block_attributes
+    TE attirbutes to apply if item is a block
+
+  @param custom_image
+    Custom image to override collection or product image
+
+  @param show_description
+    Whether to show the collection description
+
+  @param show_collection_link
+    Show a link to the collection
+{%- endcomment -%}
+
+{%- assign onboard = false -%}
+
+{%- if collection == blank -%}
+  {%- assign onboard = true -%}
+{%- endif -%}
+
+{% assign image = false %}
+{% assign has_image = false %}
+{% unless onboard %}
+  {% assign img_src = '' %}
+  {% if custom_image %}
+    {% assign img_src = custom_image %}
+    {% assign has_image = true %}
+  {% elsif collection.image %}
+    {% assign img_src = collection.image %}
+    {% assign has_image = true %}
+  {% elsif collection.products.first.featured_image %}
+    {%- assign product_image = collection.products.first.featured_image -%}
+    {% assign img_src = product_image %}
+    {% assign has_image = true %}
+  {% endif %}
+
+  {%- capture image -%}
+    {%
+      include 'rimg',
+      class: 'collection-item-image-img',
+      img: img_src,
+      size: '512x',
+      lazy: true
+    %}
+  {%- endcapture -%}
+{% endunless %}
+
+{% unless has_image %}
+  {%- capture index -%}
+    {%- cycle '1', '2', '3', '4', '5', '6' -%}
+  {%- endcapture -%}
+  {%- capture image -%}
+    {{ 'collection-' | append: index | placeholder_svg_tag: 'placeholder-svg' }}
+  {%- endcapture -%}
+{% endunless %}
+
+<article
+  class="collection-item"
+  data-cards-player-card
+  data-cards-player-card-url="{{ collection.url }}"
+  {% if block_attributes %}{{ block_attributes }}{% endif %}
+>
+
+  <figure
+    class="collection-item-image grid-item-image"
+    data-cards-player-card-visual
+    data-object-fit-item
+  >
+    {% if external_link_on and external_link != blank %}
+      <a class="collection-item-image-link" href="{{ external_link }}" target="_blank"></a>
+    {% else %}
+      <a class="collection-item-image-link" href="{{ collection.url }}"></a>
+    {% endif %}
+    {{ image }}
+  </figure>
+
+  {%
+    include 'patterns',
+    size: 'small',
+    class: 'grid-item-pattern'
+  %}
+
+  <div
+    class="collection-item-info grid-item-info"
+    data-cards-player-card-content
+  >
+    <h2 class="collection-item-title">
+      {%- unless onboard -%}
+      
+      {% if external_link_on and external_link != blank %}
+      	<a href="{{ external_link }}" target="_blank">
+          {{ collection.title }}
+        </a>
+      {% else %}
+        <a href="{{ collection.url }}">
+          {{ collection.title }}
+        </a>
+      {% endif %}
+      
+        
+      {%- else -%}
+        {{ 'onboarding.collection.title' | t }}
+      {%- endunless -%}
+    </h2>
+    {%- if show_description -%}
+      {%- if onboard -%}
+        <div class="collection-item-description rte">
+          <p>{{ 'onboarding.collection.description' | t }}</p>
+        </div>
+      {%- elsif collection.description != blank -%}
+        <div class="collection-item-description rte">
+          {{ collection.description }}
+        </div>
+      {%- endif -%}
+    {%- endif -%}
+
+    {%- if show_collection_link and onboard == false -%}
+    
+    {% if external_link_on and external_link != blank %}
+      <a class="collection-item-cta" href="{{ external_link }}" target="_blank">
+        {{ 'collection.general.view_collection' | t }}
+      </a>
+    {% else %}
+      <a class="collection-item-cta" href="{{ collection.url }}">
+        {{ 'collection.general.view_collection' | t }}
+      </a>
+    {% endif %}   
+    
+    {%- endif -%}
+  </div>
+</article>

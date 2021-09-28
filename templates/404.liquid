@@ -1,0 +1,32 @@
+<article class="site-page background-alternate site-page-404">
+  <header class="page-masthead">
+    <h1 class="page-title">
+      {{ '404.general.title' | t }}
+    </h1>
+  </header>
+
+  <div class="page-container">
+    <div class="page-content rte">
+      <p>{{ '404.general.description' | t }}</p>
+
+      <div class="form-element-wrapper form-element-wrapper-button">
+        <div
+          class="
+            form-element-button
+            form-element-secondary
+          "
+        >
+          <a class="form-element button" href="/collections">
+            {{ '404.general.submit' | t }}
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {%
+    include 'patterns',
+    size: 'large',
+    class: 'page-content-pattern'
+  %}
+</article>

@@ -1,0 +1,97 @@
+<header class="blog-masthead">
+  <h1 class="blog-title">
+    {{ blog.title }}
+
+    {% if section.settings.show_rss_link %}
+      <a
+        class="blog-title-rss"
+        href="{{ blog.url }}.atom"
+      >
+        {%
+          include 'icons',
+          id: 'rss'
+        %}
+        <span class="show-for-sr">
+          {{ 'general.accessibility.rss' | t }}
+        </span>
+      </a>
+    {% endif %}
+  </h1>
+</header>
+
+{% paginate blog.articles by section.settings.posts_per_page %}
+
+  <div class="blog-posts">
+    {% for article in blog.articles %}
+      {%
+        include 'article-excerpt',
+        article: article,
+        button_style: 'primary'
+      %}
+    {% else %}
+      <article class="blog-no-results">
+        <h2 class="blog-no-results-title">
+          {{ 'blog.general.empty_blog' | t }}
+        </h2>
+      </article>
+    {% endfor %}
+  </div>
+
+  {% include 'pagination' %}
+{% endpaginate %}
+
+
+{% schema %}
+{
+  "name": "Blog posts",
+  "class": "section-static-blog background-alternate",
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "show_rss_link",
+      "label": "Show RSS link",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_date",
+      "label": "Show date published",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_author",
+      "label": "Show post author",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_comments_count",
+      "label": "Show post comments count",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_excerpt",
+      "label": "Show post excerpt",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_tags",
+      "label": "Show post tags",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "posts_per_page",
+      "label": "Posts per page",
+      "min": 3,
+      "max": 15,
+      "step": 3,
+      "default": 6
+    }
+  ]
+}
+
+{% endschema %}

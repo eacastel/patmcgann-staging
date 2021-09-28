@@ -1,0 +1,30 @@
+{% comment %}
+  @param menu LinkedList
+         The menu handle to look up.
+
+  @param menu_class String
+         Add a class to the menu
+{% endcomment %}
+
+{%- capture menu_classes -%}
+  menu-list
+  {% if menu_class != blank %}{{ menu_class }}{% endif %}
+{%- endcapture -%}
+
+{% assign menu_list = linklists[menu] %}
+{% assign menu_title = linklists[menu].title %}
+
+{% if menu_list.links.size > 0 %}
+  <ul
+    class="{{ menu_classes | strip_newlines }}"
+    aria-label="{{ menu_title }}"
+  >
+    {%- for link in menu_list.links -%}
+      <li class="menu-list-item">
+        <a class="menu-list-link" href="{{ link.url }}">
+          {{ link.title }}
+        </a>
+      </li>
+    {%- endfor -%}
+  </ul>
+{% endif %}

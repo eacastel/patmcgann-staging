@@ -1,0 +1,175 @@
+{%
+  if section.settings.twitter != blank
+  or section.settings.facebook != blank
+  or section.settings.whatsapp != blank
+%}
+  <div class="contact-social-media">
+    {% if section.settings.twitter != blank %}
+      {% assign screen_name = section.settings.twitter | replace: '@', '' | escape %}
+      <a
+        class="contact-social-media-button"
+        href="https://twitter.com/intent/tweet?screen_name={{ screen_name }}"
+        target="_blank"
+      >
+        {%
+          include 'icons',
+          id: 'twitter'
+        %}
+        <span>{{ 'contact.general.twitter' | t: screen_name: screen_name }}</span>
+      </a>
+      <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+    {% endif %}
+
+    {% if section.settings.facebook != blank %}
+      <a
+        class="contact-social-media-button"
+        href="{{ section.settings.facebook | escape }}"
+        target="_blank"
+      >
+        {%
+          include 'icons',
+          id: 'facebook_messenger'
+        %}
+        <span>{{ 'contact.general.facebook_messenger' | t }}</span>
+      </a>
+    {% endif %}
+
+    {% if section.settings.whatsapp != blank %}
+      {%- assign telephone = section.settings.whatsapp
+        | escape
+        | replace: ' ', ''
+        | replace: '+', ''
+        | replace: '-', ''
+        | replace: '(', ''
+        | replace: ')', ''
+        | replace: '"', ''
+        | replace: "'", ''
+        | replace: '&', ''
+        | replace: '#', ''
+        | replace: '{', ''
+        | replace: '}', ''
+        | replace: '<', ''
+        | replace: '>', ''
+      -%}
+      <a
+        class="contact-social-media-button"
+        href="https://api.whatsapp.com/send?phone={{ telephone }}"
+        target="_blank"
+      >
+        {%
+          include 'icons',
+          id: 'whatsapp'
+        %}
+        <span>{{ 'contact.general.whatsapp' | t }}</span>
+      </a>
+    {% endif %}
+  </div>
+{% endif %}
+
+{% assign form_id = 'contact-form' %}
+<div class="contact-form-container">
+  {% form 'contact', id: form_id %}
+    {% if form.posted_successfully? %}
+      <div class="contact-message form-success">
+        <p>{{ 'contact.form.success' | t  }}</p>
+      </div>
+    {% else %}
+      <input
+        type="hidden"
+        name="contact[context]"
+        value="{{ form_id }}"
+      >
+      {% if form.errors and form.context == form_id %}
+        <div class="contact-message form-errors">
+          {{ form.errors | default_errors }}
+        </div>
+      {% endif %}
+
+      {% assign email_error = false %}
+      {% if form.errors contains 'email' and form.context == form_id %}
+        {% assign email_error = true %}
+      {% endif %}
+
+      {% assign contact_form_name_label = 'contact.form.name' | t %}
+      {%
+        include 'form-elements',
+        id: 'contact-name',
+        name: 'contact[name]',
+        type: 'text'
+        value: form.name,
+        label: contact_form_name_label
+      %}
+
+      {% assign contact_form_email_label = 'contact.form.email' | t %}
+      {%
+        include 'form-elements',
+        id: 'contact-email',
+        name: 'contact[email]',
+        type: 'email'
+        value: form.email,
+        label: contact_form_email_label,
+        required: true,
+        error: email_error,
+      %}
+
+      {% assign contact_form_phone_label = 'contact.form.phone' | t %}
+      {%
+        include 'form-elements',
+        id: 'contact-phone',
+        name: 'contact[phone]',
+        type: 'text'
+        value: form.phone,
+        label: contact_form_phone_label
+      %}
+
+      {% assign contact_form_message_label = 'contact.form.message' | t %}
+      {%
+        include 'form-elements',
+        id: 'contact-message',
+        name: 'contact[comments]',
+        type: 'textarea'
+        value: form.comments,
+        label: contact_form_message_label
+      %}
+
+      {% assign contact_form_submit_value = 'contact.form.submit' | t %}
+      {%
+        include 'form-elements',
+        secondary: true,
+        type: 'submit',
+        value: contact_form_submit_value
+      %}
+    {% endif %}
+  {% endform %}
+</div>
+
+{% schema %}
+{
+  "name": "Contact page",
+  "class": "static-section-contact",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Social media"
+    },
+    {
+      "type": "text",
+      "id": "twitter",
+      "label": "Twitter screen name"
+    },
+    {
+      "type": "text",
+      "id": "facebook",
+      "label": "Facebook Messenger link",
+      "info": "[How to obtain your Facebook Messenger link](https://www.facebook.com/help/messenger-app/1047811435279151?helpref=faq_content)"
+    },
+    {
+      "type": "text",
+      "id": "whatsapp",
+      "label": "WhatsApp phone number",
+      "info": "Omit any zeroes, brackets or dashes when adding the phone number in international format"
+    }
+  ]
+}
+
+{% endschema %}
